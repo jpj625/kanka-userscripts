@@ -1,6 +1,6 @@
 {
   "name": "kanka-keybinds",
-  "version": "0.8.3-0",
+  "version": "0.8.3-1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "build": "npm version prerelease && webpack",
     "run": "webpack --watch",
     "version": "webpack && git add -A dist -f",
-    "postversion": "git push && git push --tags"
+    "postversion": "git commit -m \"Push build\" && git push --force-with-lease && git push --tags"
   },
   "author": "",
   "license": "MIT",
