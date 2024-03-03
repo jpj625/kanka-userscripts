@@ -1,11 +1,10 @@
 const webpack = require("webpack");
 const path = require("path");
+const pkg = require('./package.json')
 
 module.exports = {
     entry: "./src/main.ts", // path to your main TypeScript file
     mode: "production",
-    // mode: "none",
-    // mode: "development",
     module: {
         rules: [
             {
@@ -36,10 +35,10 @@ module.exports = {
 // ==UserScript==
 // @name         Kanka.io Keybinds
 // @namespace    http://tampermonkey.net/
-// @version      0.7a
+// @version      ${pkg.version}
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
 // @author       Infinite
-// @license      MIT
+// @license      ${pkg.license}
 // @match        https://app.kanka.io/w/*/entities/*
 // @icon         https://www.google.com/s2/favicons?domain=kanka.io
 // @run-at       document-idle

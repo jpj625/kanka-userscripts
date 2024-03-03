@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka.io Keybinds
 // @namespace    http://tampermonkey.net/
-// @version      0.7a
+// @version      0.8.2
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
 // @author       Infinite
 // @license      MIT
@@ -29,13 +29,15 @@ var _a, _b, _c;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 /*  ====================================
         You can change these keybinds
-    ==================================== */
+    ====================================
+*/
 const keybinds = {
     LABEL: 'l',
     MOVE: 'm',
     HELP: '?',
 };
 /*
+
 ## Combination of keys - generic mod helper sets cross platform shortcuts
     'mod+s' => command+s / ctrl+s
 
@@ -47,6 +49,7 @@ const keybinds = {
 
 ## Text fields - keyboard events will not fire in textarea, input, or select
     enable with [class='mousetrap']
+
 */
 /*  =======================================
         You probably shouldn't edit below
