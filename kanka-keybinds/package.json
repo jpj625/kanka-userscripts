@@ -4,8 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "npm version patch && webpack",
-    "run": "webpack --watch"
+    "patch": "npm version patch && webpack",
+    "build": "npm version prerelease && webpack",
+    "run": "webpack --watch",
+    "version": "webpack && git add -A dist -f",
+    "postversion": "git push && git push --tags"
   },
   "author": "",
   "license": "MIT",

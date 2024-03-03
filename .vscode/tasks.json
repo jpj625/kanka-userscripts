@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "npm",
+			"script": "run",
+			"path": "kanka-keybinds",
+			"problemMatcher": [],
+			"label": "npm: run - kanka-keybinds",
+			"detail": "webpack --watch"
+		},
+		{
+			"type": "npm",
+			"script": "build",
+			"path": "kanka-keybinds",
+			"problemMatcher": [],
+			"label": "npm: build - kanka-keybinds",
+			"detail": "npm version patch && webpack"
+		}
+	]
+}
