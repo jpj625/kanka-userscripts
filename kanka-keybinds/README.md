@@ -1,4 +1,4 @@
-# Kanka Keybinds
+## Kanka Keybinds
 
 Attaches a listener to entity pages and responds to a small number of new hotkeys.
 
