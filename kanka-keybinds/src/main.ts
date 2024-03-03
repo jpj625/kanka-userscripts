@@ -63,14 +63,10 @@ type EntityType = 'default'
     | 'race'
     | 'tag';
 
-function parseBodyClasses(body: HTMLElement | JQuery<HTMLElement>): {
+function parseBodyClasses(body: HTMLElement): {
     entity: Entity,
     tags: Thing[],
 } {
-    if (body instanceof HTMLElement == false) {
-        body = body[0];
-    }
-
     const classes = Array.from(body.classList);
 
     const entity: Entity = { id: '', entityType: 'default', type: '' };
@@ -248,8 +244,7 @@ function post(url: string, body: URLSearchParams): Promise<boolean> {
                     const responseText = new TextDecoder().decode(content.value);
                     const body = responseText.match(/\<body[^\>]*?\>/);
                     if (body){
-                        const newMeta = parseBodyClasses($(body[0]));
-                        console.log({newMeta});
+                        console.log({resp: body[0]});
                     }
                 });
             return response.ok;

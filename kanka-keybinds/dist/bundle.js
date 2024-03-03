@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka.io Keybinds
 // @namespace    http://tampermonkey.net/
-// @version      0.8.2
+// @version      0.8.3-0
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
 // @author       Infinite
 // @license      MIT
@@ -56,9 +56,6 @@ const keybinds = {
     ======================================= */
 const mousetrap_1 = __importDefault(__webpack_require__(802));
 function parseBodyClasses(body) {
-    if (body instanceof HTMLElement == false) {
-        body = body[0];
-    }
     const classes = Array.from(body.classList);
     const entity = { id: '', entityType: 'default', type: '' };
     const tags = [];
@@ -208,8 +205,7 @@ function post(url, body) {
             const responseText = new TextDecoder().decode(content.value);
             const body = responseText.match(/\<body[^\>]*?\>/);
             if (body) {
-                const newMeta = parseBodyClasses($(body[0]));
-                console.log({ newMeta });
+                console.log({ resp: body[0] });
             }
         });
         return response.ok;
