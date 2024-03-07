@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka.io Keybinds
 // @namespace    http://tampermonkey.net/
-// @version      0.8.3-6
+// @version      0.8.3-7
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
 // @author       Infinite
 // @license      MIT
@@ -48,15 +48,17 @@ const keybinds = {
     '?' instead of 'shift+/'
 
 ## Text fields - keyboard events will not fire in textarea, input, or select
-    enable with [class='mousetrap']
+    enable on an element with [class='mousetrap']
 
 */
-/*  =======================================
-        You probably shouldn't edit below
-    ======================================= */
+/*  =======================================================
+        You probably shouldn't edit below... probably.
+        Here there be `Dragons : Reptile<Mythical>[]`
+    ======================================================= */
 const mousetrap_1 = __importDefault(__webpack_require__(802));
 // import tippy from 'tippy';
 const emit_debug = console.log;
+// this is a jQuery 'plugin' to make an element blink
 $.prototype.blink = function (times, duration) {
     for (let i = 0; i < times; i++) {
         this.animate({ opacity: 0 }, duration)
@@ -64,6 +66,9 @@ $.prototype.blink = function (times, duration) {
     }
     return this;
 };
+/**
+ * Extract metadata from the classes on the <body>
+ */
 function parseBodyClasses(body) {
     const classes = Array.from(body.classList);
     const entity = { id: '', entityType: 'default', type: '' };
@@ -100,12 +105,18 @@ function parseBodyClasses(body) {
             }
         }
     });
-    return { tags, entity };
+    return { entity, tags };
 }
 const route = window.location.pathname;
-// this is necessary to get the typedID and the plural 
+// using the edit button is necessary to get the typedID and the plural :\
 const editButtonLink = (_a = $('div#entity-submenu a[href$="edit"]').attr('href')) !== null && _a !== void 0 ? _a : $('div.header-buttons a[href$="edit"]').attr('href');
+/**
+ * This contains "all" the Kanka-specific data
+ */
 const kanka = {
+    /**
+     * Ye olde CSRF token
+     */
     csrfToken: (_b = document.head.querySelector('meta[name="csrf-token"]')) === null || _b === void 0 ? void 0 : _b.getAttribute('content'),
     route,
     campaignID: ((_c = route.match(/w\/(\d+)\//)) !== null && _c !== void 0 ? _c : [null, '0'])[1],
@@ -114,14 +125,20 @@ const kanka = {
      */
     entityType: ((_d = editButtonLink === null || editButtonLink === void 0 ? void 0 : editButtonLink.match(/\/(\w+)\/\d+\/edit$/)) !== null && _d !== void 0 ? _d : [null, '0'])[1],
     /**
-     *  this is the 'larger' ID: entities/*5328807* === characters/1357612
+     *  this is the 'larger' ID: entities/__[5328807]__ === characters/1357612
      */
     entityID: ((_e = route.match(/w\/\d+\/entities\/(\d+)/)) !== null && _e !== void 0 ? _e : [null, '0'])[1],
     /**
-     * this is the 'smaller' ID: entities/5328807 === characters/*1357612*
+     * this is the 'smaller' ID: entities/5328807 === characters/__[1357612]__
      */
     typedID: ((_f = editButtonLink === null || editButtonLink === void 0 ? void 0 : editButtonLink.match(/\/(\d+)\/edit$/)) !== null && _f !== void 0 ? _f : [null, '0'])[1],
     meta: parseBodyClasses(document.body),
+    /**
+     * this encapsulates the definitions from the system
+     * - some entities have a location, some don't
+     * - some entities have a link in the header, some use the sidebar
+     * - some entities can have multiple locations, some can't
+     */
     entityTypeHasLocation: ({
         default: {},
         character: { headerLink: true },
@@ -143,17 +160,6 @@ const kanka = {
 };
 kanka.bulkEditUrl = `/w/${kanka.campaignID}/bulk/process`;
 kanka.entityEditUrl = `/w/${kanka.campaignID}/${kanka.entityType}/${kanka.typedID}`;
-const handlers = {
-    [keybinds.LABEL]: function (evt, combo) {
-        initSelector(templates.TAG_SELECT, processTagSelection);
-    },
-    [keybinds.MOVE]: function (evt, combo) {
-        initSelector(templates.LOCATION_SELECT, processLocationSelection);
-    },
-    [keybinds.HELP]: function (evt, combo) {
-        // TODO show a modal describing the keybinds
-    },
-};
 const identifiers = {
     Sidebar: {
         Class: '.entity-sidebar',
@@ -273,10 +279,6 @@ async function edit(body) {
             "x-csrf-token": kanka.csrfToken,
             "x-requested-with": "XMLHttpRequest"
         },
-        "referrer": kanka.entityEditUrl + "/edit",
-        "referrerPolicy": "strict-origin-when-cross-origin",
-        "mode": "cors",
-        "credentials": "include",
         redirect: 'follow',
         body,
     })
@@ -286,6 +288,12 @@ async function edit(body) {
         return { ok: false, document: [], error };
     });
 }
+/**
+ * Reacts when Location is selected via floaty dropdown. Sets the Location of the entity.
+ *
+ * @param event - The Select2 event object.
+ * @returns A promise that resolves to a boolean indicating whether the processing was successful.
+ */
 async function processLocationSelection(event) {
     const { id: locationID, text } = event.params.data;
     const thisEntityTypeHasLocation = kanka.entityTypeHasLocation[kanka.meta.entity.entityType];
@@ -294,20 +302,24 @@ async function processLocationSelection(event) {
         /**
          * For the curious, it's because the edit endpoint needs:
          * - the list of typed IDs (which we don't have)
-         * - some weird voodoo with XHR that I can't replicate
+         * - some weird voodoo with XHR that I can't replicate (I get a 405 Method Not Allowed)
          */
-        return;
+        return false;
         const data = new FormData();
         data.append('_token', kanka.csrfToken);
         // this is kinda BS, but it's the cleanest way to get 
         // - the list of typed IDs
         // - the other stuff
-        await fetch(`https://app.kanka.io/w/${kanka.campaignID}/creatures/${kanka.typedID}/edit`, {
+        const editable = await fetch(`https://app.kanka.io/w/${kanka.campaignID}/creatures/${kanka.typedID}/edit`, {
             method: 'GET',
             headers: { 'Content-Type': 'text/html' }
         })
-            .then(fetch_success)
-            .then(response => $(response.document)
+            .then(fetch_success);
+        if (!editable.ok) {
+            emit_debug('Error:', editable);
+            return false;
+        }
+        $(editable.document)
             .find('form#entity-form')
             .serializeArray()
             // .filter(kvp => {
@@ -315,17 +327,17 @@ async function processLocationSelection(event) {
             //     if (kvp.value == '0') return false;
             //     if (kvp.value == 'inherit') return false;
             // })
-            .forEach(kvp => data.append(kvp.name, kvp.value)));
+            .forEach(kvp => data.append(kvp.name, kvp.value));
         data.append('locations[]', locationID);
-        await edit(data)
-            .then(response => {
+        const response = await edit(data);
+        if (response.ok) {
             const doc = $(response.document);
             emit_debug({
                 header: doc.find('.entity-header'),
                 sidebar: doc.find('#sidebar-profile-elements'),
             });
-        });
-        return;
+        }
+        return response.ok;
     }
     const params = createPostParams();
     params.append('location_id', locationID);
@@ -345,6 +357,7 @@ async function processLocationSelection(event) {
         }
     };
     if (thisEntityTypeHasLocation.headerLink) {
+        // TODO [2024-03-06] - reduce the replacement scope to keep more functionality
         sub('.entity-header')
             .find('.entity-header-sub')
             .blink(3, 125);
@@ -361,8 +374,15 @@ async function processLocationSelection(event) {
             .find('.profile-location')
             .blink(3, 125);
     }
+    return true;
 }
-function processTagSelection(event) {
+/**
+ * Reacts when a Tag is selected via floaty dropdown. Toggles the presence of the tag on the entity.
+ *
+ * @param event - The Select2 event object.
+ * @returns A promise that resolves to a boolean indicating whether the processing was successful.
+ */
+async function processTagSelection(event) {
     const { id: tagID, text } = event.params.data;
     const params = createPostParams();
     params.append('save-tags', '1');
@@ -374,16 +394,15 @@ function processTagSelection(event) {
     }
     const hasTag = !!kanka.meta.tags.find(tag => tag.id == tagID);
     params.append('bulk-tagging', hasTag ? 'remove' : 'add');
-    return post(`/w/${kanka.campaignID}/bulk/process`, params)
-        .then((ok) => {
-        const tagBar = header.find('.entity-tags');
-        if (ok) {
-            hasTag
-                ? tagBar.children().remove(`[href="${templates.TAG_URL(tagID)}"]`)
-                : tagBar.append($(templates.TAG_LINK(tagID, text)));
-            tagBar.blink(3, 125);
-        }
-    });
+    const result = await post(`/w/${kanka.campaignID}/bulk/process`, params);
+    const tagBar = header.find('.entity-tags');
+    if (result.ok) {
+        (hasTag
+            ? tagBar.children().remove(`[href="${templates.TAG_URL(tagID)}"]`)
+            : tagBar.append($(templates.TAG_LINK(tagID, text))))
+            .blink(3, 125);
+    }
+    return result.ok;
     /*
         // was doing it using the simple 'add entity under tag' API
         // but why not consolidate?
@@ -450,6 +469,20 @@ function byMatchiness(term) {
         return scoreB - scoreA || textA.localeCompare(textB);
     };
 }
+/**
+ * Map the keybinds to the handlers
+ */
+const handlers = {
+    [keybinds.LABEL]: function (evt, combo) {
+        initSelector(templates.TAG_SELECT, processTagSelection);
+    },
+    [keybinds.MOVE]: function (evt, combo) {
+        initSelector(templates.LOCATION_SELECT, processLocationSelection);
+    },
+    [keybinds.HELP]: function (evt, combo) {
+        // TODO show a modal describing the keybinds
+    },
+};
 (function () {
     if (!document.body.className.includes('kanka-entity-')) {
         return;
