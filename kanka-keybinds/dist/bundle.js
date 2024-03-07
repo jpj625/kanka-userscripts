@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka.io Keybinds
 // @namespace    http://tampermonkey.net/
-// @version      0.8.3-5
+// @version      0.8.3-6
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
 // @author       Infinite
 // @license      MIT
@@ -109,11 +109,17 @@ const kanka = {
     csrfToken: (_b = document.head.querySelector('meta[name="csrf-token"]')) === null || _b === void 0 ? void 0 : _b.getAttribute('content'),
     route,
     campaignID: ((_c = route.match(/w\/(\d+)\//)) !== null && _c !== void 0 ? _c : [null, '0'])[1],
-    // this is the plural, not values from EntityType
+    /**
+     *  this is the plural, not values from EntityType
+     */
     entityType: ((_d = editButtonLink === null || editButtonLink === void 0 ? void 0 : editButtonLink.match(/\/(\w+)\/\d+\/edit$/)) !== null && _d !== void 0 ? _d : [null, '0'])[1],
-    // this is the 'larger' ID: entities/*5328807* === characters/1357612
+    /**
+     *  this is the 'larger' ID: entities/*5328807* === characters/1357612
+     */
     entityID: ((_e = route.match(/w\/\d+\/entities\/(\d+)/)) !== null && _e !== void 0 ? _e : [null, '0'])[1],
-    // this is the 'smaller' ID: entities/5328807 === characters/*1357612*
+    /**
+     * this is the 'smaller' ID: entities/5328807 === characters/*1357612*
+     */
     typedID: ((_f = editButtonLink === null || editButtonLink === void 0 ? void 0 : editButtonLink.match(/\/(\d+)\/edit$/)) !== null && _f !== void 0 ? _f : [null, '0'])[1],
     meta: parseBodyClasses(document.body),
     entityTypeHasLocation: ({
@@ -232,11 +238,7 @@ function createPostParams() {
 async function fetch_success(response) {
     var _a;
     emit_debug('Success:', response);
-    const document = await ((_a = response.body) === null || _a === void 0 ? void 0 : _a.getReader().read().then(content => {
-        const responseHtml = new TextDecoder().decode(content.value);
-        return $.parseHTML(responseHtml);
-    }));
-    return { ok: response.ok, document: document !== null && document !== void 0 ? document : [] };
+    return { ok: response.ok, document: (_a = $.parseHTML(await response.text())) !== null && _a !== void 0 ? _a : [] };
 }
 function post(url, body) {
     return fetch(url, {
@@ -248,10 +250,11 @@ function post(url, body) {
         .then(fetch_success)
         .catch((error) => {
         console.error('Error:', error);
-        return { ok: error.ok, document: [] };
+        return { ok: false, document: [], error };
     });
 }
 async function edit(body) {
+    // wat da faq
     emit_debug({ edit_data: [...body.entries()] });
     var xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
@@ -280,7 +283,7 @@ async function edit(body) {
         .then(fetch_success)
         .catch((error) => {
         console.error('Error:', error);
-        return { ok: error.ok, document: [] };
+        return { ok: false, document: [], error };
     });
 }
 async function processLocationSelection(event) {
@@ -288,6 +291,11 @@ async function processLocationSelection(event) {
     const thisEntityTypeHasLocation = kanka.entityTypeHasLocation[kanka.meta.entity.entityType];
     if (thisEntityTypeHasLocation.multiple) {
         alert('This entity type can have multiple locations. This feature is not yet implemented.');
+        /**
+         * For the curious, it's because the edit endpoint needs:
+         * - the list of typed IDs (which we don't have)
+         * - some weird voodoo with XHR that I can't replicate
+         */
         return;
         const data = new FormData();
         data.append('_token', kanka.csrfToken);
@@ -327,29 +335,28 @@ async function processLocationSelection(event) {
         return false;
     }
     const sub = (selector) => {
-        const newBlock = $(response.document).find(selector);
-        emit_debug({
-            original: $(selector).html(),
-            replacement: newBlock.html(),
-        });
-        $(selector).replaceWith(newBlock);
+        $(selector).replaceWith($(response.document).find(selector));
         return $(selector);
+    };
+    const ensure = (parent, selector, defaultValue) => {
+        if ($(selector).length == 0) {
+            emit_debug(`adding ${selector} to ${parent}`);
+            parent.append(defaultValue);
+        }
     };
     if (thisEntityTypeHasLocation.headerLink) {
         sub('.entity-header')
-            .find('.entity-header-sub.entity-header-line')
+            .find('.entity-header-sub')
             .blink(3, 125);
     }
     if (thisEntityTypeHasLocation.sidebarLink) {
         const sidebar = $(identifiers.Sidebar.Class);
-        if (sidebar.find(identifiers.Sidebar.ProfileClass).length == 0) {
-            emit_debug('adding profile');
-            sidebar.find('.entity-pins').after(templates.SIDEBAR_PROFILE());
-        }
-        if (sidebar.find(identifiers.Sidebar.ProfileElementsID).length == 0) {
-            emit_debug('adding profile elements');
-            sidebar.find(identifiers.Sidebar.ProfileClass).append(`<div id="${identifiers.Sidebar.ProfileElementsID.slice(1)}"></div>`);
-        }
+        // make sure the sidebar has the relevant childrens
+        ensure(sidebar, identifiers.Sidebar.ProfileClass, templates.SIDEBAR_PROFILE());
+        // an entity might have the sidebar, but not the Profile block
+        ensure(sidebar, identifiers.Sidebar.ProfileElementsID, `<div id="${identifiers.Sidebar.ProfileElementsID.slice(1)}"></div>`);
+        // and the Profile block may or may not have the Location
+        ensure(sidebar.find(identifiers.Sidebar.ProfileElementsID), '.profile-location', `<div class="profile-location"></div>`);
         sub(identifiers.Sidebar.ProfileElementsID)
             .find('.profile-location')
             .blink(3, 125);
@@ -370,9 +377,12 @@ function processTagSelection(event) {
     return post(`/w/${kanka.campaignID}/bulk/process`, params)
         .then((ok) => {
         const tagBar = header.find('.entity-tags');
-        ok && hasTag
-            ? tagBar.children().remove(`[href="${templates.TAG_URL(tagID)}"]`)
-            : tagBar.append($(templates.TAG_LINK(tagID, text)));
+        if (ok) {
+            hasTag
+                ? tagBar.children().remove(`[href="${templates.TAG_URL(tagID)}"]`)
+                : tagBar.append($(templates.TAG_LINK(tagID, text)));
+            tagBar.blink(3, 125);
+        }
     });
     /*
         // was doing it using the simple 'add entity under tag' API
