@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka.io Keybinds
 // @namespace    http://tampermonkey.net/
-// @version      0.8.3-4
+// @version      0.8.3-5
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
 // @author       Infinite
 // @license      MIT
@@ -25,7 +25,7 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
-var _a, _b, _c;
+var _a, _b, _c, _d, _e, _f;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 /*  ====================================
         You can change these keybinds
@@ -55,6 +55,15 @@ const keybinds = {
         You probably shouldn't edit below
     ======================================= */
 const mousetrap_1 = __importDefault(__webpack_require__(802));
+// import tippy from 'tippy';
+const emit_debug = console.log;
+$.prototype.blink = function (times, duration) {
+    for (let i = 0; i < times; i++) {
+        this.animate({ opacity: 0 }, duration)
+            .animate({ opacity: 1 }, duration);
+    }
+    return this;
+};
 function parseBodyClasses(body) {
     const classes = Array.from(body.classList);
     const entity = { id: '', entityType: 'default', type: '' };
@@ -86,7 +95,7 @@ function parseBodyClasses(body) {
                     }
                     break;
                 default:
-                    console.warn("what's this?", match);
+                    emit_debug("what's this?", match);
                     break;
             }
         }
@@ -94,11 +103,18 @@ function parseBodyClasses(body) {
     return { tags, entity };
 }
 const route = window.location.pathname;
+// this is necessary to get the typedID and the plural 
+const editButtonLink = (_a = $('div#entity-submenu a[href$="edit"]').attr('href')) !== null && _a !== void 0 ? _a : $('div.header-buttons a[href$="edit"]').attr('href');
 const kanka = {
-    csrfToken: (_a = document.head.querySelector('meta[name="csrf-token"]')) === null || _a === void 0 ? void 0 : _a.getAttribute('content'),
+    csrfToken: (_b = document.head.querySelector('meta[name="csrf-token"]')) === null || _b === void 0 ? void 0 : _b.getAttribute('content'),
     route,
-    campaignID: ((_b = route.match(/w\/(\d+)\//)) !== null && _b !== void 0 ? _b : [null, '0'])[1],
-    entityID: ((_c = route.match(/w\/\d+\/entities\/(\d+)/)) !== null && _c !== void 0 ? _c : [null, '0'])[1],
+    campaignID: ((_c = route.match(/w\/(\d+)\//)) !== null && _c !== void 0 ? _c : [null, '0'])[1],
+    // this is the plural, not values from EntityType
+    entityType: ((_d = editButtonLink === null || editButtonLink === void 0 ? void 0 : editButtonLink.match(/\/(\w+)\/\d+\/edit$/)) !== null && _d !== void 0 ? _d : [null, '0'])[1],
+    // this is the 'larger' ID: entities/*5328807* === characters/1357612
+    entityID: ((_e = route.match(/w\/\d+\/entities\/(\d+)/)) !== null && _e !== void 0 ? _e : [null, '0'])[1],
+    // this is the 'smaller' ID: entities/5328807 === characters/*1357612*
+    typedID: ((_f = editButtonLink === null || editButtonLink === void 0 ? void 0 : editButtonLink.match(/\/(\d+)\/edit$/)) !== null && _f !== void 0 ? _f : [null, '0'])[1],
     meta: parseBodyClasses(document.body),
     entityTypeHasLocation: ({
         default: {},
@@ -116,7 +132,11 @@ const kanka = {
         note: {},
         quest: {},
     }),
+    bulkEditUrl: '',
+    entityEditUrl: '',
 };
+kanka.bulkEditUrl = `/w/${kanka.campaignID}/bulk/process`;
+kanka.entityEditUrl = `/w/${kanka.campaignID}/${kanka.entityType}/${kanka.typedID}`;
 const handlers = {
     [keybinds.LABEL]: function (evt, combo) {
         initSelector(templates.TAG_SELECT, processTagSelection);
@@ -128,7 +148,25 @@ const handlers = {
         // TODO show a modal describing the keybinds
     },
 };
+const identifiers = {
+    Sidebar: {
+        Class: '.entity-sidebar',
+        ProfileClass: '.sidebar-section-profile',
+        ProfileElementsID: '#sidebar-profile-elements',
+    },
+};
 const templates = {
+    SIDEBAR_PROFILE: () => `
+<div class="sidebar-section-box ${identifiers.Sidebar.ProfileClass.slice(1)} overflow-hidden flex flex-col gap-2">
+    <div class="sidebar-section-title cursor-pointer text-lg user-select border-b element-toggle" data-animate="collapse" data-target="#sidebar-profile-elements">
+        <i class="fa-solid fa-chevron-up icon-show " aria-hidden="true"></i>
+        <i class="fa-solid fa-chevron-down icon-hide " aria-hidden="true"></i>
+        Profile
+    </div>
+
+    <div class="sidebar-elements grid overflow-hidden" id="${identifiers.Sidebar.ProfileElementsID.slice(1)}">
+    </div>
+</div>`.trim(),
     SELECT_ELEMENT: (dataUrl, placeholder) => `
 <select class="form-tags select2"
     style="width: 100%"
@@ -183,98 +221,168 @@ function createPostParams() {
     const params = new URLSearchParams();
     params.append('_token', kanka.csrfToken);
     params.append('datagrid-action', 'batch');
-    params.append('entity', kanka.meta.entity.entityType);
+    // this needs the plural
+    params.append('entity', kanka.entityType);
     params.append('mode', 'table');
-    params.append('models', kanka.meta.entity.id);
+    // typedID is different from entityID
+    params.append('models', kanka.typedID);
     params.append('undefined', '');
     return params;
+}
+async function fetch_success(response) {
+    var _a;
+    emit_debug('Success:', response);
+    const document = await ((_a = response.body) === null || _a === void 0 ? void 0 : _a.getReader().read().then(content => {
+        const responseHtml = new TextDecoder().decode(content.value);
+        return $.parseHTML(responseHtml);
+    }));
+    return { ok: response.ok, document: document !== null && document !== void 0 ? document : [] };
 }
 function post(url, body) {
     return fetch(url, {
         method: 'POST',
         redirect: 'follow',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
         body,
     })
-        .then((response) => {
-        var _a;
-        console.log('Success:', response);
-        (_a = response.body) === null || _a === void 0 ? void 0 : _a.getReader().read().then(content => {
-            const responseText = new TextDecoder().decode(content.value);
-            const body = responseText.match(/\<body[^\>]*?\>/);
-            if (body) {
-                console.log({ resp: body[0] });
-            }
-        });
-        return response.ok;
-    })
+        .then(fetch_success)
         .catch((error) => {
         console.error('Error:', error);
-        return error.ok;
+        return { ok: error.ok, document: [] };
     });
 }
-function processLocationSelection(event) {
+async function edit(body) {
+    emit_debug({ edit_data: [...body.entries()] });
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+    xhr.open('POST', kanka.entityEditUrl, false);
+    xhr.setRequestHeader('x-csrf-token', kanka.csrfToken);
+    xhr.setRequestHeader('x-requested-with', 'XMLHttpRequest');
+    xhr.send(body);
+    emit_debug({ req: xhr });
+    return {
+        ok: xhr.status == 200,
+        document: $.parseHTML(xhr.responseText),
+    };
+    return fetch(kanka.entityEditUrl, {
+        method: 'POST',
+        headers: {
+            "x-csrf-token": kanka.csrfToken,
+            "x-requested-with": "XMLHttpRequest"
+        },
+        "referrer": kanka.entityEditUrl + "/edit",
+        "referrerPolicy": "strict-origin-when-cross-origin",
+        "mode": "cors",
+        "credentials": "include",
+        redirect: 'follow',
+        body,
+    })
+        .then(fetch_success)
+        .catch((error) => {
+        console.error('Error:', error);
+        return { ok: error.ok, document: [] };
+    });
+}
+async function processLocationSelection(event) {
     const { id: locationID, text } = event.params.data;
+    const thisEntityTypeHasLocation = kanka.entityTypeHasLocation[kanka.meta.entity.entityType];
+    if (thisEntityTypeHasLocation.multiple) {
+        alert('This entity type can have multiple locations. This feature is not yet implemented.');
+        return;
+        const data = new FormData();
+        data.append('_token', kanka.csrfToken);
+        // this is kinda BS, but it's the cleanest way to get 
+        // - the list of typed IDs
+        // - the other stuff
+        await fetch(`https://app.kanka.io/w/${kanka.campaignID}/creatures/${kanka.typedID}/edit`, {
+            method: 'GET',
+            headers: { 'Content-Type': 'text/html' }
+        })
+            .then(fetch_success)
+            .then(response => $(response.document)
+            .find('form#entity-form')
+            .serializeArray()
+            // .filter(kvp => {
+            //     if (kvp.value == '') return false;
+            //     if (kvp.value == '0') return false;
+            //     if (kvp.value == 'inherit') return false;
+            // })
+            .forEach(kvp => data.append(kvp.name, kvp.value)));
+        data.append('locations[]', locationID);
+        await edit(data)
+            .then(response => {
+            const doc = $(response.document);
+            emit_debug({
+                header: doc.find('.entity-header'),
+                sidebar: doc.find('#sidebar-profile-elements'),
+            });
+        });
+        return;
+    }
     const params = createPostParams();
     params.append('location_id', locationID);
-    post(`/w/${kanka.campaignID}/bulk/process`, params)
-        .then(() => {
-        const thisEntityLocation = kanka.entityTypeHasLocation[kanka.meta.entity.entityType];
-        if (thisEntityLocation.headerLink) {
-            const headerLink_Location = $($('[title="Location"]').next().next());
-            if (!!headerLink_Location) {
-                headerLink_Location.replaceWith(templates.LOCATION_LINK(locationID, text));
-            }
+    const response = await post(kanka.bulkEditUrl, params);
+    if (!response.ok) {
+        emit_debug('Error:', response);
+        return false;
+    }
+    const sub = (selector) => {
+        const newBlock = $(response.document).find(selector);
+        emit_debug({
+            original: $(selector).html(),
+            replacement: newBlock.html(),
+        });
+        $(selector).replaceWith(newBlock);
+        return $(selector);
+    };
+    if (thisEntityTypeHasLocation.headerLink) {
+        sub('.entity-header')
+            .find('.entity-header-sub.entity-header-line')
+            .blink(3, 125);
+    }
+    if (thisEntityTypeHasLocation.sidebarLink) {
+        const sidebar = $(identifiers.Sidebar.Class);
+        if (sidebar.find(identifiers.Sidebar.ProfileClass).length == 0) {
+            emit_debug('adding profile');
+            sidebar.find('.entity-pins').after(templates.SIDEBAR_PROFILE());
         }
-        if (thisEntityLocation.sidebarLink) {
-            const sidebar = $('#sidebar-profile-elements > div').first();
-            let sidebar_Location = sidebar.find('.profile-location');
-            if (!sidebar_Location) {
-                sidebar_Location = $('<div class="element profile-location">');
-                sidebar_Location.append($('<div class="title text-uppercase text-xs">Location</div>'));
-                sidebar.prepend(sidebar_Location);
-            }
-            const link = templates.LOCATION_LINK(locationID, text);
-            if (thisEntityLocation.multiple) {
-                sidebar_Location.append(link);
-            }
-            else {
-                sidebar_Location.find('a').replaceWith(link);
-            }
+        if (sidebar.find(identifiers.Sidebar.ProfileElementsID).length == 0) {
+            emit_debug('adding profile elements');
+            sidebar.find(identifiers.Sidebar.ProfileClass).append(`<div id="${identifiers.Sidebar.ProfileElementsID.slice(1)}"></div>`);
         }
-    });
+        sub(identifiers.Sidebar.ProfileElementsID)
+            .find('.profile-location')
+            .blink(3, 125);
+    }
 }
 function processTagSelection(event) {
     const { id: tagID, text } = event.params.data;
     const params = createPostParams();
+    params.append('save-tags', '1');
+    params.append('tags[]', tagID);
     const header = $('.entity-header .entity-header-text');
     if (header.has('.entity-tags').length == 0) {
         $('<div class="entity-tags entity-header-line text-xs flex flex-wrap gap-2"></div>')
             .insertBefore(header.find('.header-buttons'));
     }
-    const tagBar = header.find('.entity-tags');
     const hasTag = !!kanka.meta.tags.find(tag => tag.id == tagID);
-    if (hasTag) {
-        const existingTag = tagBar.children(`[href="${templates.TAG_URL(tagID)}"]`)[0];
-        if (!!existingTag) {
-            params.append('bulk-tagging', 'remove');
-            params.append('tags[]', tagID);
-            params.append('save-tags', '1');
-            post(`/w/${kanka.campaignID}/bulk/process`, params)
-                .then(() => {
-                existingTag.remove();
-            });
-            return;
-        }
-    }
-    params.append('entities[]', kanka.meta.entity.id);
-    params.append('tag_id', tagID);
-    post(`/w/${kanka.campaignID}/tags/${tagID}/entity-add/`, params)
+    params.append('bulk-tagging', hasTag ? 'remove' : 'add');
+    return post(`/w/${kanka.campaignID}/bulk/process`, params)
         .then((ok) => {
-        ok && tagBar.append($(templates.TAG_LINK(tagID, text)));
+        const tagBar = header.find('.entity-tags');
+        ok && hasTag
+            ? tagBar.children().remove(`[href="${templates.TAG_URL(tagID)}"]`)
+            : tagBar.append($(templates.TAG_LINK(tagID, text)));
     });
+    /*
+        // was doing it using the simple 'add entity under tag' API
+        // but why not consolidate?
+        params.append('entities[]', kanka.meta.entity.id);
+        params.append('tag_id', tagID);
+    
+        post(`/w/${kanka.campaignID}/tags/${tagID}/entity-add/`, params)
+            .then((ok) => ok && tagBar.append($(templates.TAG_LINK(tagID, text))));
+    */
 }
 function initSelector(template, processSelection) {
     const floatingDiv = createFloatingElement(template);
@@ -307,7 +415,7 @@ function initSelector(template, processSelection) {
                     if (jqXHR.status === 503) {
                         window.showToast(jqXHR.responseJSON.message, 'error');
                     }
-                    console.log('error', jqXHR, textStatus, errorThrown);
+                    emit_debug('error', jqXHR, textStatus, errorThrown);
                     return { results: [] };
                 },
                 cache: true
@@ -339,7 +447,7 @@ function byMatchiness(term) {
     for (const key in handlers) {
         mousetrap_1.default.bind(key, handlers[key]);
     }
-    console.log(kanka.meta);
+    emit_debug({ kanka });
 })();
 
 
