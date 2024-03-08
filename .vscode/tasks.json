@@ -7,7 +7,7 @@
 			"path": "kanka-keybinds",
 			"problemMatcher": [],
 			"label": "npm: run - kanka-keybinds",
-			"detail": "webpack --watch"
+			"detail": "Continuous build"
 		},
 		{
 			"type": "npm",
@@ -15,7 +15,15 @@
 			"path": "kanka-keybinds",
 			"problemMatcher": [],
 			"label": "npm: build - kanka-keybinds",
-			"detail": "npm version patch && webpack"
+			"detail": "Ship patch version to branch"
+		},
+		{
+			"type": "npm",
+			"script": "release",
+			"path": "kanka-keybinds",
+			"problemMatcher": [],
+			"label": "npm: release - kanka-keybinds",
+			"detail": "Ship minor version to main"
 		}
 	]
 }
