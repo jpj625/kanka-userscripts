@@ -1,6 +1,6 @@
 
 // ==UserScript==
-// @name         Kanka.io Keybinds (dev)
+// @name         Kanka.io Keybinds (master)
 // @namespace    http://tampermonkey.net/
 // @version      0.9.0
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.

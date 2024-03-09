@@ -12,8 +12,8 @@
     "minor": "npm version minor",
     "major": "npm version major",
     "push": "git add ../ && git commit -m \"Push build\" && git push --force-with-lease && git push --tags",
-    "deploy": "git checkout dev && npm run push",
-    "publish": "git checkout master && npm run push",
+    "deploy": "git stash && git checkout dev && git stash pop && npm run push",
+    "publish": "git stash && git checkout master && git stash pop && npm run build && npm run push",
     "noop": "echo \"No operation\""
   },
   "author": "",
