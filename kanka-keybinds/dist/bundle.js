@@ -1,8 +1,8 @@
 
 // ==UserScript==
-// @name         Kanka.io Keybinds
+// @name         Kanka.io Keybinds (dev)
 // @namespace    http://tampermonkey.net/
-// @version      0.8.3-7
+// @version      0.8.4
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
 // @author       Infinite
 // @license      MIT
@@ -11,7 +11,6 @@
 // @run-at       document-idle
 // @grant        none
 // @require      https://craig.global.ssl.fastly.net/js/mousetrap/mousetrap.min.js?a4098
-// @require      https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js
 // ==/UserScript==
 
 /******/ (() => { // webpackBootstrap

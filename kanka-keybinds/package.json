@@ -1,22 +1,19 @@
 {
   "name": "kanka-keybinds",
-  "version": "0.8.3-7",
+  "version": "0.8.4",
   "description": "",
   "main": "index.js",
   "scripts": {
     "run": "webpack --watch",
     "build": "webpack bundle",
     "version": "npm run build && git add -A dist -f && git add -A package*.json",
-
     "prerelease": "npm version prerelease",
     "patch": "npm version patch",
     "minor": "npm version minor",
     "major": "npm version major",
-
     "push": "git add ../ && git commit -m \"Push build\" && git push --force-with-lease && git push --tags",
     "deploy": "git checkout dev && npm run push",
     "publish": "git checkout master && npm run push",
-
     "noop": "echo \"No operation\""
   },
   "author": "",

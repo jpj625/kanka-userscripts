@@ -1,6 +1,7 @@
 const webpack = require("webpack");
 const path = require("path");
-const pkg = require('./package.json')
+const pkg = require('./package.json');
+const branch = require('child_process').execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 
 module.exports = {
     entry: "./src/main.ts", // path to your main TypeScript file
@@ -33,7 +34,7 @@ module.exports = {
         new webpack.BannerPlugin({
             banner: `
 // ==UserScript==
-// @name         Kanka.io Keybinds
+// @name         Kanka.io Keybinds${branch === 'main' ? '' : ` (${branch})`}
 // @namespace    http://tampermonkey.net/
 // @version      ${pkg.version}
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
@@ -44,7 +45,6 @@ module.exports = {
 // @run-at       document-idle
 // @grant        none
 // @require      https://craig.global.ssl.fastly.net/js/mousetrap/mousetrap.min.js?a4098
-// @require      https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js
 // ==/UserScript==
 `,
             raw: true,
@@ -52,3 +52,5 @@ module.exports = {
     ],
 };
 
+// not needed since it's on the page
+// @require      https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js
