@@ -1,15 +1,15 @@
 
 // ==UserScript==
-// @name         Kanka Keybinds
+// @name         Kanka Atomic Entity Editor (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.9.6
-// @description  Set your own keyboard shortcuts for entity view page on Kanka.
+// @version      0.9.7-0
+// @description  Provides keyboard shortcuts for simple edits from the entity view page on Kanka.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
 // @license      MIT
 // @match        https://app.kanka.io/w/*/entities/*
 // @icon         https://www.google.com/s2/favicons?domain=kanka.io
-// @keywords     kanka,keybinds,keyboard,shortcuts,hotkeys,tag,location
+// @keywords     kanka,keybind,keyboard,shortcut,hotkey,tag,location,entity,edit
 // @run-at       document-idle
 // @grant        none
 // @require      https://craig.global.ssl.fastly.net/js/mousetrap/mousetrap.min.js?a4098
