@@ -1,34 +1,64 @@
 {
-  "name": "kanka-keybinds",
-  "version": "0.9.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "run": "webpack --watch",
-    "build": "webpack bundle",
-    "version": "npm run build && git add -A dist -f && git add -A package*.json",
-    "prerelease": "npm version prerelease",
-    "patch": "npm version patch",
-    "minor": "npm version minor",
-    "major": "npm version major",
-    "push": "git add ../ && git commit -m \"Push build\" && git push --force-with-lease && git push --tags",
-    "deploy": "git stash && git checkout dev && git stash pop && npm run push",
-    "publish": "git stash && git checkout master && git stash pop && npm run build && npm run push",
-    "noop": "echo \"No operation\""
-  },
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "mousetrap": "^1.6.5",
-    "tippy.js": "^6.3.7",
-    "typescript": "^5.3.3"
-  },
-  "devDependencies": {
-    "@types/jquery": "^3.5.29",
-    "@types/mousetrap": "^1.6.15",
-    "@types/select2": "^4.0.63",
-    "ts-loader": "^9.5.1",
-    "webpack": "^5.89.0",
-    "webpack-cli": "^5.1.4"
-  }
+    "name": "kanka-keybinds",
+    "version": "0.9.4-2",
+    "displayName": "Kanka Keybinds",
+    "description": "Set your own keyboard shortcuts for entity view page on Kanka.",
+    "icon": "https://www.google.com/s2/favicons?domain=kanka.io",
+    "keywords": [
+        "kanka",
+        "keybinds",
+        "keyboard",
+        "shortcuts",
+        "hotkeys",
+        "tag",
+        "location"
+    ],
+    "readme": "README.md",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/jpj625/kanka-userscripts.git"
+    },
+    "bugs": {
+        "url": "Infinite @ https://discord.gg/rhsyZJ4"
+    },
+    "homepage": "https://app.kanka.io/w/*/entities/*",
+    "publisher": "https://greasyfork.org/en/users/1029479-infinitegeek",
+    "scripts": {
+        "run": "webpack --watch",
+        "build": "webpack bundle",
+        "//ver": "echo 'sequence: `preversion` `ver:xxx` `version`'",
+        "ver:prerelease": "npm --force version prerelease",
+        "ver:patch": "npm --force version patch",
+        "ver:minor": "npm --force version minor",
+        "ver:major": "npm --force version major",
+        "version": "npm-run-all build git:commit",
+        "checkout:dev": "git checkout dev",
+        "checkout:master": "git checkout master",
+        "git:pack": "git add -A dist -f && git add -A package*.json",
+        "git:commit": "git add ../ && git commit -m \"Push %npm_package_version% build\"",
+        "git:push": "git push --force-with-lease && git push --tags",
+        "git:squash-dev": "git merge dev --squash --strategy-option=theirs",
+        "git:squash-master": "git merge master --squash --strategy-option=theirs",
+        "squash:dev-to-master": "npm-run-all checkout:master git:squash-dev git:commit",
+        "sync:dev-with-master": "npm-run-all checkout:dev git:squash-master",
+        "dev-workflow": "cls && npm-run-all --print-label checkout:dev git:pack ver:prerelease git:push",
+        "prod-workflow": "cls && npm-run-all --print-label squash:dev-to-master ver:%VER% git:push sync:dev-with-master",
+        "noop": "echo \"No operation %npm_package_version%\""
+    },
+    "author": "InfiniteGeek",
+    "license": "MIT",
+    "dependencies": {
+        "mousetrap": "^1.6.5",
+        "tippy.js": "^6.3.7",
+        "typescript": "^5.3.3"
+    },
+    "devDependencies": {
+        "@types/jquery": "^3.5.29",
+        "@types/mousetrap": "^1.6.15",
+        "@types/select2": "^4.0.63",
+        "npm-run-all": "^4.1.5",
+        "ts-loader": "^9.5.1",
+        "webpack": "^5.89.0",
+        "webpack-cli": "^5.1.4"
+    }
 }

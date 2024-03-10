@@ -14,12 +14,13 @@
 		},
 	],
 	"settings": {
-		"workbench.editor.labelFormat": "medium"
+		"workbench.editor.labelFormat": "medium",
+		"task.autoDetect": "off",
+		"npm.autoDetect": "off",
+		"typescript.tsc.autoDetect": "off",
+		"explorer.fileNesting.expand": true,
+		"files.insertFinalNewline": true,
+		"task.allowAutomaticTasks": "off",
+		"npm.exclude": "**/**",
 	},
-	"tasks": {
-		"version": "2.0.0",
-		"tasks": [
-		
-		]
-	}
 }

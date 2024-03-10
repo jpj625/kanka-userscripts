@@ -1,0 +1,81 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+			"label": "Version -- Prerelease",
+			"type": "npm",
+			"script": "ver:prerelease", 
+			"detail": "Compiles the TypeScript files",
+			"problemMatcher": ["$tsc"],
+            "path": "${input:script}",
+		},
+		{
+			"label": "Version -- Patch",
+			"type": "npm",
+			"script": "ver:patch", 
+			"detail": "Increments the patch version",
+			"problemMatcher": ["$tsc"],
+            "path": "${input:script}",
+		},
+		{
+			"label": "Version -- Minor",
+			"type": "npm",
+			"script": "ver:minor", 
+			"detail": "Increments the minor version",
+			"problemMatcher": ["$tsc"],
+            "path": "${input:script}",
+		},
+		{
+			"label": "Version -- Major",
+			"type": "npm",
+			"script": "ver:major", 
+			"detail": "Increments the major version",
+			"problemMatcher": ["$tsc"],
+            "path": "${input:script}",
+		},
+		{
+			"label": "Dev Publish",
+			"type": "npm",
+			"script": "dev-workflow",
+			"detail": "Publishes to dev branch on Github",
+			"problemMatcher": ["$tsc"],
+            "path": "${input:script}",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+		},
+		{
+			"label": "Prod Publish",
+			"type": "npm",
+			"script": "prod-workflow",
+			"detail": "Publishes to master branch on Github",
+			"problemMatcher": ["$tsc"],
+            "path": "${input:script}",
+            "group": {
+                "kind": "build",
+            },
+			"options": {
+				"env": {
+					"VER": "${input:version}"
+				}
+			}		
+		},
+    ],
+    "inputs": [
+        {
+            "id": "script",
+            "type": "pickString",
+            "description": "Select the script to build",
+            "options": ["kanka-keybinds", "kanka-at-helper"],
+            "default": "Keybinds"
+        },
+		{
+            "id": "version",
+            "type": "pickString",
+            "description": "Select the version type to publish",
+            "options": ["patch", "minor", "major"],
+            "default": "patch",
+        },
+    ],
+}
