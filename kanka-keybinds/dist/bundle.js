@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka Keybinds (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.9.5-1
+// @version      0.9.5-2
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -170,8 +170,8 @@ const templates = {
     SIDEBAR_PROFILE: () => `
 <div class="sidebar-section-box ${identifiers.Sidebar.ProfileClass.slice(1)} overflow-hidden flex flex-col gap-2">
     <div class="sidebar-section-title cursor-pointer text-lg user-select border-b element-toggle" data-animate="collapse" data-target="#sidebar-profile-elements">
-        <i class="fa-solid fa-chevron-up icon-show " aria-hidden="true"></i>
-        <i class="fa-solid fa-chevron-down icon-hide " aria-hidden="true"></i>
+        <i class="fa-solid fa-chevron-up icon-show"></i>
+        <i class="fa-solid fa-chevron-down icon-hide"></i>
         Profile
     </div>
 
