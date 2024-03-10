@@ -211,10 +211,11 @@ const templates = {
 };
 /// making my own container for the select to avoid any interference
 function createFloatingElement(template) {
-    let floatingDiv = document.getElementById('#infinite-select2');
-    if (!floatingDiv) {
-        floatingDiv = document.createElement('div');
-        floatingDiv.id = 'infinite-select2';
+    const divID = 'infinite-select2';
+    let floatingDiv = document.getElementById(divID)
+        || document.createElement('div');
+    if (!floatingDiv.id) {
+        floatingDiv.id = divID;
         // Add styles to make it float and position it as needed
         floatingDiv.style.position = 'absolute';
         floatingDiv.style.top = '5%';
