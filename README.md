@@ -2,11 +2,13 @@
 
 ## @-Helper
 
+Enhances the `@` key functionality to allow 'select then @-mention' functionality.
+
 [README](kanka-at-helper/README.md)
 
 
-## Kanka Keybinds
+## Kanka Atomic Entity Editor
 
-Attaches a listener to entity pages and responds to a small number of new hotkeys.
+Allows entity pages to respond to a small number of new hotkeys with single-field edits, such as tagging or setting location.
 
-[README](kanka-keybinds/README.md)
+[README](kanka-atomic-entity-editor/README.md)

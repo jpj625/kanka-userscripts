@@ -9,8 +9,8 @@
 			"name": "== @ Helper =====",
 		},
 		{
-			"path": "./kanka-keybinds",
-			"name": "== Keybinds =====",
+			"path": "./kanka-atomic-entity-editor",
+			"name": "== Atomic Editor =====",
 		},
 	],
 	"settings": {

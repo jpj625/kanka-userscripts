@@ -67,8 +67,8 @@
             "id": "script",
             "type": "pickString",
             "description": "Select the script to build",
-            "options": ["kanka-keybinds", "kanka-at-helper"],
-            "default": "Keybinds"
+            "options": ["kanka-atomic-entity-editor", "kanka-at-helper"],
+            "default": "kanka-atomic-entity-editor"
         },
 		{
             "id": "version",
