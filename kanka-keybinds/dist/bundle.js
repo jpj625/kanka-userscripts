@@ -158,11 +158,7 @@ const kanka = {
         note: {},
         quest: {},
     }),
-    bulkEditUrl: '',
-    entityEditUrl: '',
 };
-kanka.bulkEditUrl = kanka.getUri('bulk/process');
-kanka.entityEditUrl = kanka.getUri(kanka.entityType, kanka.typedID);
 const identifiers = {
     Sidebar: {
         Class: '.entity-sidebar',
@@ -174,8 +170,8 @@ const templates = {
     SIDEBAR_PROFILE: () => `
 <div class="sidebar-section-box ${identifiers.Sidebar.ProfileClass.slice(1)} overflow-hidden flex flex-col gap-2">
     <div class="sidebar-section-title cursor-pointer text-lg user-select border-b element-toggle" data-animate="collapse" data-target="#sidebar-profile-elements">
-        <i class="fa-solid fa-chevron-up icon-show " aria-hidden="true"></i>
-        <i class="fa-solid fa-chevron-down icon-hide " aria-hidden="true"></i>
+        <i class="fa-solid fa-chevron-up icon-show"></i>
+        <i class="fa-solid fa-chevron-down icon-hide"></i>
         Profile
     </div>
 
@@ -267,7 +263,7 @@ async function edit(body) {
     emit_debug({ edit_data: [...body.entries()] });
     var xhr = new XMLHttpRequest();
     xhr.withCredentials = true;
-    xhr.open('POST', kanka.entityEditUrl, false);
+    xhr.open('POST', kanka.getUri(kanka.entityType, kanka.typedID), false);
     xhr.setRequestHeader('x-csrf-token', kanka.csrfToken);
     xhr.setRequestHeader('x-requested-with', 'XMLHttpRequest');
     xhr.send(body);
@@ -276,7 +272,7 @@ async function edit(body) {
         ok: xhr.status == 200,
         document: $.parseHTML(xhr.responseText),
     };
-    return fetch(kanka.entityEditUrl, {
+    return fetch(kanka.getUri(kanka.entityType, kanka.typedID), {
         method: 'POST',
         headers: {
             "x-csrf-token": kanka.csrfToken,
@@ -344,7 +340,7 @@ async function processLocationSelection(event) {
     }
     const params = createPostParams();
     params.append('location_id', locationID);
-    const response = await post(kanka.bulkEditUrl, params);
+    const response = await post(kanka.getUri('bulk/process'), params);
     if (!response.ok) {
         emit_debug('Error:', response);
         return false;
