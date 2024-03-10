@@ -1,8 +1,8 @@
 
 // ==UserScript==
-// @name         Kanka Atomic Entity Editor (dev)
+// @name         Kanka Atomic Entity Editor
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.9.7-0
+// @version      1.0.0
 // @description  Provides keyboard shortcuts for simple edits from the entity view page on Kanka.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
