@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka Keybinds
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.9.5
+// @version      0.9.6
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
