@@ -1,6 +1,6 @@
 {
     "name": "kanka-atomic-entity-editor",
-    "version": "0.9.6",
+    "version": "0.9.7-0",
     "displayName": "Kanka Atomic Entity Editor",
     "description": "Provides keyboard shortcuts for simple edits from the entity view page on Kanka.",
     "icon": "https://www.google.com/s2/favicons?domain=kanka.io",
