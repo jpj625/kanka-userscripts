@@ -125,6 +125,8 @@ const editButtonLink = $('div#entity-submenu a[href$="edit"]').attr('href')
  * This contains "all" the Kanka-specific data 
  */
 const kanka = {
+    rootUri: 'https://app.kanka.io',
+    getUri: (...segments: string[]) => [kanka.rootUri, 'w', kanka.campaignID, ...segments].join('/'),
     /**
      * Ye olde CSRF token
      */
@@ -177,8 +179,8 @@ const kanka = {
     entityEditUrl: '',
 };
 
-kanka.bulkEditUrl = `/w/${kanka.campaignID}/bulk/process`;
-kanka.entityEditUrl = `/w/${kanka.campaignID}/${kanka.entityType}/${kanka.typedID}`;
+kanka.bulkEditUrl = kanka.getUri('bulk/process');
+kanka.entityEditUrl = kanka.getUri(kanka.entityType, kanka.typedID);
 
 const identifiers = {
     Sidebar: {
@@ -222,15 +224,15 @@ const templates = {
         return $(`<span>${text}</span>`);
     },
 
-    TAG_SELECT: () => templates.SELECT_ELEMENT(`https://app.kanka.io/w/${kanka.campaignID}/search/tags`, 'Apply Tag'),
-    TAG_URL: (tagID: string) => `https://app.kanka.io/w/${kanka.campaignID}/tags/${tagID}`,
+    TAG_SELECT: () => templates.SELECT_ELEMENT(kanka.getUri('search/tags'), 'Apply Tag'),
+    TAG_URL: (tagID: string) => kanka.getUri('tags', tagID),
     TAG_LINK: (tagID: string, text: string) => `
 <a href="${templates.TAG_URL(tagID)}" title="Refresh to get full tooltip functionality">
     <span class="badge color-tag rounded-sm px-2 py-1">${text}</span>
 </a>`.trim(),
 
-    LOCATION_SELECT: () => templates.SELECT_ELEMENT(`https://app.kanka.io/w/${kanka.campaignID}/search/locations`, 'Move to...'),
-    LOCATION_URL: (locationID: string) => `https://app.kanka.io/w/${kanka.campaignID}/entities/${locationID}`,
+    LOCATION_SELECT: () => templates.SELECT_ELEMENT(kanka.getUri('search/locations'), 'Move to...'),
+    LOCATION_URL: (locationID: string) => kanka.getUri('entities', locationID),
     LOCATION_LINK: (locationID: string, text: string) =>
         `<a class="name" href="${templates.LOCATION_URL(locationID)}" title="Refresh to get full tooltip functionality">${text}</a>`,
     // TODO - get popper/tippy working to enable preview tooltips 
@@ -353,7 +355,8 @@ async function processLocationSelection(event: Select2Event): Promise<boolean> {
         // this is kinda BS, but it's the cleanest way to get 
         // - the list of typed IDs
         // - the other stuff
-        const editable = await fetch(`https://app.kanka.io/w/${kanka.campaignID}/creatures/${kanka.typedID}/edit`, {
+
+        const editable = await fetch(kanka.getUri('creatures', kanka.typedID, 'edit'), {
             method: 'GET',
             headers: { 'Content-Type': 'text/html' }
         })
@@ -471,7 +474,7 @@ async function processTagSelection(event: Select2Event): Promise<boolean> {
         params.append('entities[]', kanka.meta.entity.id);
         params.append('tag_id', tagID);
     
-        post(`/w/${kanka.campaignID}/tags/${tagID}/entity-add/`, params)
+        post(kanka.getUri('tags', tagID, 'entity-add'), params)
             .then((ok) => ok && tagBar.append($(templates.TAG_LINK(tagID, text))));
     */
 }

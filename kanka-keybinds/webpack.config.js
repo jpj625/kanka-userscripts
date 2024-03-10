@@ -1,7 +1,8 @@
 const webpack = require("webpack");
 const path = require("path");
 const pkg = require('./package.json');
-const branch = require('child_process').execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+const branchName = require('child_process').execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+const scriptName = pkg.displayName + (['main', 'master'].includes(branchName) ? '' : ` (${branchName})`);
 
 module.exports = {
     entry: "./src/main.ts", // path to your main TypeScript file
@@ -20,28 +21,28 @@ module.exports = {
         mousetrap: 'Mousetrap',
         'tippy.js': 'tippy',
     },
-    optimization: {
-        minimize: false
-    },
+    optimization: { minimize: false },
     resolve: {
         extensions: [".ts", ".js"],
     },
     output: {
-        filename: "bundle.js", // name of the output bundle
         path: path.resolve(__dirname, "dist"), // directory to output the bundle
+        filename: "bundle.js", // name of the output bundle
     },
     plugins: [
         new webpack.BannerPlugin({
             banner: `
 // ==UserScript==
-// @name         Kanka.io Keybinds${branch === 'main' ? '' : ` (${branch})`}
-// @namespace    http://tampermonkey.net/
+// @name         ${scriptName}
+// @namespace    ${pkg.publisher}
 // @version      ${pkg.version}
-// @description  Set your own keyboard shortcuts for entity view page on Kanka.
-// @author       Infinite
+// @description  ${pkg.description}
+// @author       ${pkg.author}
+// @supportURL   ${pkg.bugs.url}
 // @license      ${pkg.license}
-// @match        https://app.kanka.io/w/*/entities/*
-// @icon         https://www.google.com/s2/favicons?domain=kanka.io
+// @match        ${pkg.homepage}
+// @icon         ${pkg.icon}
+// @keywords     ${pkg.keywords.join(',')}
 // @run-at       document-idle
 // @grant        none
 // @require      https://craig.global.ssl.fastly.net/js/mousetrap/mousetrap.min.js?a4098

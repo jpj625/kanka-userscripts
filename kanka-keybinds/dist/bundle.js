@@ -1,13 +1,15 @@
 
 // ==UserScript==
-// @name         Kanka.io Keybinds (dev)
-// @namespace    http://tampermonkey.net/
-// @version      0.9.0
+// @name         Kanka Keybinds
+// @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
+// @version      0.9.4
 // @description  Set your own keyboard shortcuts for entity view page on Kanka.
-// @author       Infinite
+// @author       InfiniteGeek
+// @supportURL   Infinite @ https://discord.gg/rhsyZJ4
 // @license      MIT
 // @match        https://app.kanka.io/w/*/entities/*
 // @icon         https://www.google.com/s2/favicons?domain=kanka.io
+// @keywords     kanka,keybinds,keyboard,shortcuts,hotkeys,tag,location
 // @run-at       document-idle
 // @grant        none
 // @require      https://craig.global.ssl.fastly.net/js/mousetrap/mousetrap.min.js?a4098
@@ -113,6 +115,8 @@ const editButtonLink = (_a = $('div#entity-submenu a[href$="edit"]').attr('href'
  * This contains "all" the Kanka-specific data
  */
 const kanka = {
+    rootUri: 'https://app.kanka.io',
+    getUri: (...segments) => [kanka.rootUri, 'w', kanka.campaignID, ...segments].join('/'),
     /**
      * Ye olde CSRF token
      */
@@ -157,8 +161,8 @@ const kanka = {
     bulkEditUrl: '',
     entityEditUrl: '',
 };
-kanka.bulkEditUrl = `/w/${kanka.campaignID}/bulk/process`;
-kanka.entityEditUrl = `/w/${kanka.campaignID}/${kanka.entityType}/${kanka.typedID}`;
+kanka.bulkEditUrl = kanka.getUri('bulk/process');
+kanka.entityEditUrl = kanka.getUri(kanka.entityType, kanka.typedID);
 const identifiers = {
     Sidebar: {
         Class: '.entity-sidebar',
@@ -197,14 +201,14 @@ const templates = {
         }
         return $(`<span>${text}</span>`);
     },
-    TAG_SELECT: () => templates.SELECT_ELEMENT(`https://app.kanka.io/w/${kanka.campaignID}/search/tags`, 'Apply Tag'),
-    TAG_URL: (tagID) => `https://app.kanka.io/w/${kanka.campaignID}/tags/${tagID}`,
+    TAG_SELECT: () => templates.SELECT_ELEMENT(kanka.getUri('search/tags'), 'Apply Tag'),
+    TAG_URL: (tagID) => kanka.getUri('tags', tagID),
     TAG_LINK: (tagID, text) => `
 <a href="${templates.TAG_URL(tagID)}" title="Refresh to get full tooltip functionality">
     <span class="badge color-tag rounded-sm px-2 py-1">${text}</span>
 </a>`.trim(),
-    LOCATION_SELECT: () => templates.SELECT_ELEMENT(`https://app.kanka.io/w/${kanka.campaignID}/search/locations`, 'Move to...'),
-    LOCATION_URL: (locationID) => `https://app.kanka.io/w/${kanka.campaignID}/entities/${locationID}`,
+    LOCATION_SELECT: () => templates.SELECT_ELEMENT(kanka.getUri('search/locations'), 'Move to...'),
+    LOCATION_URL: (locationID) => kanka.getUri('entities', locationID),
     LOCATION_LINK: (locationID, text) => `<a class="name" href="${templates.LOCATION_URL(locationID)}" title="Refresh to get full tooltip functionality">${text}</a>`,
     // TODO - get popper/tippy working to enable preview tooltips 
     // data-toggle="tooltip-ajax" data-id="${locationID}" data-url="${templates.LOCATION_URL(locationID)}/tooltip">
@@ -309,7 +313,7 @@ async function processLocationSelection(event) {
         // this is kinda BS, but it's the cleanest way to get 
         // - the list of typed IDs
         // - the other stuff
-        const editable = await fetch(`https://app.kanka.io/w/${kanka.campaignID}/creatures/${kanka.typedID}/edit`, {
+        const editable = await fetch(kanka.getUri('creatures', kanka.typedID, 'edit'), {
             method: 'GET',
             headers: { 'Content-Type': 'text/html' }
         })
@@ -408,7 +412,7 @@ async function processTagSelection(event) {
         params.append('entities[]', kanka.meta.entity.id);
         params.append('tag_id', tagID);
     
-        post(`/w/${kanka.campaignID}/tags/${tagID}/entity-add/`, params)
+        post(kanka.getUri('tags', tagID, 'entity-add'), params)
             .then((ok) => ok && tagBar.append($(templates.TAG_LINK(tagID, text))));
     */
 }
