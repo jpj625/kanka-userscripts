@@ -233,9 +233,12 @@ const templates = {
     // TODO - get popper/tippy working to enable preview tooltips 
     // data-toggle="tooltip-ajax" data-id="${locationID}" data-url="${templates.LOCATION_URL(locationID)}/tooltip">
 
-    HELP: () => Object.entries(keybinds)
-        .map(([key, value], index) => `<div><h3>${key}</h3>  <span>${value}</span></div>`)
-        .join('\n'),
+    HELP: () => `<table style="	background-color: #ccc4; border: 1px solid silver; border-radius: 8px; width: 100%;">
+    <colgroup><col width="33%"><col></colgroup>`
+    + Object.entries(keybinds)
+        .map(([key, value], index) => `<tr><td> <kbd style="font-size: x-large">${key}</kbd></td><td><span>${value}</span></td><tr>`)
+        .join('\n')
+        + "</table>",
 };
 
 /// making my own container for the select to avoid any interference

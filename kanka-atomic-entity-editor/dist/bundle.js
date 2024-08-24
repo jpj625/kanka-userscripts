@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka Atomic Entity Editor (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.9.7-1
+// @version      0.9.7-2
 // @description  Provides keyboard shortcuts for simple edits from the entity view page on Kanka.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -208,9 +208,12 @@ const templates = {
     LOCATION_LINK: (locationID, text) => `<a class="name" href="${templates.LOCATION_URL(locationID)}" title="Refresh to get full tooltip functionality">${text}</a>`,
     // TODO - get popper/tippy working to enable preview tooltips 
     // data-toggle="tooltip-ajax" data-id="${locationID}" data-url="${templates.LOCATION_URL(locationID)}/tooltip">
-    HELP: () => Object.entries(keybinds)
-        .map(([key, value], index) => `<div><h3>${key}</h3>  <span>${value}</span></div>`)
-        .join('\n'),
+    HELP: () => `<table style="	background-color: #ccc4; border: 1px solid silver; border-radius: 8px; width: 100%;">
+    <colgroup><col width="33%"><col></colgroup>`
+        + Object.entries(keybinds)
+            .map(([key, value], index) => `<tr><td> <kbd style="font-size: x-large">${key}</kbd></td><td><span>${value}</span></td><tr>`)
+            .join('\n')
+        + "</table>",
 };
 /// making my own container for the select to avoid any interference
 function createFloatingElement(template) {
