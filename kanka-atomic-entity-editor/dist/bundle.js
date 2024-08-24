@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka Atomic Entity Editor (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.9.7-4
+// @version      0.9.7-5
 // @description  Provides keyboard shortcuts for simple edits from the entity view page on Kanka.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -213,14 +213,14 @@ const templates = {
     LOCATION_LINK: (locationID, text) => `<a class="name" href="${templates.LOCATION_URL(locationID)}" title="Refresh to get full tooltip functionality">${text}</a>`,
     // TODO - get popper/tippy working to enable preview tooltips 
     // data-toggle="tooltip-ajax" data-id="${locationID}" data-url="${templates.LOCATION_URL(locationID)}/tooltip">
-    HELP: () => `<table style="	background-color: #ccc4; border: 1px solid silver; border-radius: 8px; width: 100%;">
-    <colgroup><col width="33%"><col></colgroup>`
+    HELP: () => `<table style="background-color: #ccc4; border: 1px solid silver; border-radius: 8px; width: 100%;">
+    <colgroup><col width="20%"><col><col width="100%"></colgroup>`
         + Object.entries(keybinds)
             .map(([key, value], index) => `
         <tr>
-        <td> <div style="margin: 10px">${key}</span></td>
+        <td><div style="margin: 10px">${key}</span></td>
         <td><kbd style="font-size: x-large">${value}</kbd></td>
-        <td>${keybind_descriptions[key]}</td>
+        <td><small>${keybind_descriptions[key]}</small></td>
         </tr>`)
             .join('\n')
         + "</table>",
@@ -499,8 +499,8 @@ const handlers = {
         initSelector(templates.LOCATION_SELECT, processLocationSelection);
     },
     [keybinds.HELP]: function (evt, combo) {
-        // TODO show a modal describing the keybinds
-        createFloatingElement(templates.HELP);
+        const modal = $(createFloatingElement(templates.HELP));
+        $(document).on('click', () => modal.remove());
     },
 };
 (function () {
