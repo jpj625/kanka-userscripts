@@ -54,6 +54,12 @@ declare global {
     }
 }
 
+const keybind_descriptions : Dictionary<string> = {
+    LABEL: 'Apply a tag/label to the entity.',
+    MOVE: 'Change the location of the entity, i.e. move it.',
+    HELP: 'Show this help dialog.',
+};
+
 type EntityType = 'default' | 'character' | 'creature' | 'event' | 'family' | 'item'
     | 'journal' | 'location' | 'map' | 'note' | 'organisation' | 'quest' | 'race' | 'tag';
 
@@ -236,7 +242,12 @@ const templates = {
     HELP: () => `<table style="	background-color: #ccc4; border: 1px solid silver; border-radius: 8px; width: 100%;">
     <colgroup><col width="33%"><col></colgroup>`
     + Object.entries(keybinds)
-        .map(([key, value], index) => `<tr><td> <kbd style="font-size: x-large">${key}</kbd></td><td><span>${value}</span></td><tr>`)
+        .map(([key, value], index) => `
+        <tr>
+        <td> <div style="margin: 10px">${key}</span></td>
+        <td><kbd style="font-size: x-large">${value}</kbd></td>
+        <td>${keybind_descriptions[key]}</td>
+        </tr>`)
         .join('\n')
         + "</table>",
 };

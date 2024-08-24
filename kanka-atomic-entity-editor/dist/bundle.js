@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka Atomic Entity Editor (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.9.7-2
+// @version      0.9.7-4
 // @description  Provides keyboard shortcuts for simple edits from the entity view page on Kanka.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -59,6 +59,11 @@ const keybinds = {
 const mousetrap_1 = __importDefault(__webpack_require__(802));
 // import tippy from 'tippy';
 const emit_debug = console.log;
+const keybind_descriptions = {
+    LABEL: 'Apply a tag/label to the entity.',
+    MOVE: 'Change the location of the entity, i.e. move it.',
+    HELP: 'Show this help dialog.',
+};
 // this is a jQuery 'plugin' to make an element blink
 $.prototype.blink = function (times, duration) {
     for (let i = 0; i < times; i++) {
@@ -211,7 +216,12 @@ const templates = {
     HELP: () => `<table style="	background-color: #ccc4; border: 1px solid silver; border-radius: 8px; width: 100%;">
     <colgroup><col width="33%"><col></colgroup>`
         + Object.entries(keybinds)
-            .map(([key, value], index) => `<tr><td> <kbd style="font-size: x-large">${key}</kbd></td><td><span>${value}</span></td><tr>`)
+            .map(([key, value], index) => `
+        <tr>
+        <td> <div style="margin: 10px">${key}</span></td>
+        <td><kbd style="font-size: x-large">${value}</kbd></td>
+        <td>${keybind_descriptions[key]}</td>
+        </tr>`)
             .join('\n')
         + "</table>",
 };
