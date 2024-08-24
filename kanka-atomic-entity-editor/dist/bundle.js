@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka Atomic Entity Editor (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.9.7-5
+// @version      0.9.7-6
 // @description  Provides keyboard shortcuts for simple edits from the entity view page on Kanka.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -34,6 +34,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 */
 const keybinds = {
     LABEL: 'l',
+    TAG: 't',
     MOVE: 'm',
     HELP: '?',
 };
@@ -60,7 +61,8 @@ const mousetrap_1 = __importDefault(__webpack_require__(802));
 // import tippy from 'tippy';
 const emit_debug = console.log;
 const keybind_descriptions = {
-    LABEL: 'Apply a tag/label to the entity.',
+    LABEL: 'Apply a tag/label to the entity with my custom modal.',
+    TAG: 'Apply a tag/label to the entity with the default modal.',
     MOVE: 'Change the location of the entity, i.e. move it.',
     HELP: 'Show this help dialog.',
 };
@@ -226,7 +228,7 @@ const templates = {
         + "</table>",
 };
 /// making my own container for the select to avoid any interference
-function createFloatingElement(template) {
+function createFloatingElement(template, styles = {}) {
     const divID = 'infinite-select2';
     let floatingDiv = document.getElementById(divID)
         || document.createElement('div');
@@ -239,6 +241,7 @@ function createFloatingElement(template) {
         floatingDiv.style.minWidth = '200px';
         floatingDiv.style.width = '18%';
         floatingDiv.style.maxWidth = '400px';
+        Object.assign(floatingDiv.style, styles);
     }
     floatingDiv.innerHTML = '';
     $(template()).appendTo(floatingDiv);
@@ -490,16 +493,21 @@ function byMatchiness(term) {
  */
 const handlers = {
     [keybinds.LABEL]: function (evt, combo) {
+        initSelector(templates.TAG_SELECT, processTagSelection);
+    },
+    [keybinds.TAG]: function (evt, combo) {
         var _a, _b;
-        // it's built-in now
+        // it's built-in now :\
         (_b = (((_a = document.querySelector('span[role=button].entity-tags-icon')) !== null && _a !== void 0 ? _a : document.querySelector('span[role=button].entity-privacy-icon.text-xl')))) === null || _b === void 0 ? void 0 : _b.click();
-        // initSelector(templates.TAG_SELECT, processTagSelection);
     },
     [keybinds.MOVE]: function (evt, combo) {
         initSelector(templates.LOCATION_SELECT, processLocationSelection);
     },
     [keybinds.HELP]: function (evt, combo) {
-        const modal = $(createFloatingElement(templates.HELP));
+        const modal = $(createFloatingElement(templates.HELP, {
+            width: '25%',
+            maxWidth: '600px',
+        }));
         $(document).on('click', () => modal.remove());
     },
 };

@@ -6,6 +6,7 @@
 */
 const keybinds = {
     LABEL: 'l',
+    TAG: 't',
     MOVE: 'm',
     HELP: '?',
 };
@@ -55,7 +56,8 @@ declare global {
 }
 
 const keybind_descriptions : Dictionary<string> = {
-    LABEL: 'Apply a tag/label to the entity.',
+    LABEL: 'Apply a tag/label to the entity with my custom modal.',
+    TAG: 'Apply a tag/label to the entity with the default modal.',
     MOVE: 'Change the location of the entity, i.e. move it.',
     HELP: 'Show this help dialog.',
 };
@@ -253,7 +255,7 @@ const templates = {
 };
 
 /// making my own container for the select to avoid any interference
-function createFloatingElement(template: () => string) {
+function createFloatingElement(template: () => string, styles: Partial<CSSStyleDeclaration> = {}) {
     const divID = 'infinite-select2';
     let floatingDiv = document.getElementById(divID)
         || document.createElement('div');
@@ -268,6 +270,8 @@ function createFloatingElement(template: () => string) {
         floatingDiv.style.minWidth = '200px';
         floatingDiv.style.width = '18%';
         floatingDiv.style.maxWidth = '400px';
+
+        Object.assign(floatingDiv.style, styles);
     }
 
     floatingDiv.innerHTML = '';
@@ -563,17 +567,22 @@ function byMatchiness(term: string) {
  */
 const handlers: Record<string, MousetrapCallback> = {
     [keybinds.LABEL]: function (evt, combo) {
-        // it's built-in now
+        initSelector(templates.TAG_SELECT, processTagSelection);
+    },
+    [keybinds.TAG]: function (evt, combo) {
+        // it's built-in now :\
         ((document.querySelector('span[role=button].entity-tags-icon') 
             ?? document.querySelector('span[role=button].entity-privacy-icon.text-xl')) as HTMLSpanElement)
         ?.click();
-        // initSelector(templates.TAG_SELECT, processTagSelection);
     },
     [keybinds.MOVE]: function (evt, combo) {
         initSelector(templates.LOCATION_SELECT, processLocationSelection);
     },
     [keybinds.HELP]: function (evt, combo) {
-        const modal = $(createFloatingElement(templates.HELP));
+        const modal = $(createFloatingElement(templates.HELP, {
+            width: '25%',
+            maxWidth: '600px',
+        }));
         $(document).on('click', () => modal.remove());
     },
 };
