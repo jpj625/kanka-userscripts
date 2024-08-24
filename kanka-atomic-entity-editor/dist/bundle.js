@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka Atomic Entity Editor (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.9.7-0
+// @version      0.9.7-1
 // @description  Provides keyboard shortcuts for simple edits from the entity view page on Kanka.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -208,6 +208,9 @@ const templates = {
     LOCATION_LINK: (locationID, text) => `<a class="name" href="${templates.LOCATION_URL(locationID)}" title="Refresh to get full tooltip functionality">${text}</a>`,
     // TODO - get popper/tippy working to enable preview tooltips 
     // data-toggle="tooltip-ajax" data-id="${locationID}" data-url="${templates.LOCATION_URL(locationID)}/tooltip">
+    HELP: () => Object.entries(keybinds)
+        .map(([key, value], index) => `<div><h3>${key}</h3>  <span>${value}</span></div>`)
+        .join('\n'),
 };
 /// making my own container for the select to avoid any interference
 function createFloatingElement(template) {
@@ -474,13 +477,17 @@ function byMatchiness(term) {
  */
 const handlers = {
     [keybinds.LABEL]: function (evt, combo) {
-        initSelector(templates.TAG_SELECT, processTagSelection);
+        var _a, _b;
+        // it's built-in now
+        (_b = (((_a = document.querySelector('span[role=button].entity-tags-icon')) !== null && _a !== void 0 ? _a : document.querySelector('span[role=button].entity-privacy-icon.text-xl')))) === null || _b === void 0 ? void 0 : _b.click();
+        // initSelector(templates.TAG_SELECT, processTagSelection);
     },
     [keybinds.MOVE]: function (evt, combo) {
         initSelector(templates.LOCATION_SELECT, processLocationSelection);
     },
     [keybinds.HELP]: function (evt, combo) {
         // TODO show a modal describing the keybinds
+        createFloatingElement(templates.HELP);
     },
 };
 (function () {

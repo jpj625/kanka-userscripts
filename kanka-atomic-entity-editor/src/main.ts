@@ -232,6 +232,10 @@ const templates = {
         `<a class="name" href="${templates.LOCATION_URL(locationID)}" title="Refresh to get full tooltip functionality">${text}</a>`,
     // TODO - get popper/tippy working to enable preview tooltips 
     // data-toggle="tooltip-ajax" data-id="${locationID}" data-url="${templates.LOCATION_URL(locationID)}/tooltip">
+
+    HELP: () => Object.entries(keybinds)
+        .map(([key, value], index) => `<div><h3>${key}</h3>  <span>${value}</span></div>`)
+        .join('\n'),
 };
 
 /// making my own container for the select to avoid any interference
@@ -323,7 +327,6 @@ async function edit(body: FormData): Promise<{ ok: boolean, document: JQuery.Nod
             return { ok: false, document: [], error };
         });
 }
-
 
 /**
  * Reacts when Location is selected via floaty dropdown. Sets the Location of the entity.
@@ -546,13 +549,18 @@ function byMatchiness(term: string) {
  */
 const handlers: Record<string, MousetrapCallback> = {
     [keybinds.LABEL]: function (evt, combo) {
-        initSelector(templates.TAG_SELECT, processTagSelection);
+        // it's built-in now
+        ((document.querySelector('span[role=button].entity-tags-icon') 
+            ?? document.querySelector('span[role=button].entity-privacy-icon.text-xl')) as HTMLSpanElement)
+        ?.click();
+        // initSelector(templates.TAG_SELECT, processTagSelection);
     },
     [keybinds.MOVE]: function (evt, combo) {
         initSelector(templates.LOCATION_SELECT, processLocationSelection);
     },
     [keybinds.HELP]: function (evt, combo) {
         // TODO show a modal describing the keybinds
+        createFloatingElement(templates.HELP);
     },
 };
 
