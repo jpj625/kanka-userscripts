@@ -1,13 +1,15 @@
 
 // ==UserScript==
-// @name         Kanka.io @ Helper
-// @namespace    http://tampermonkey.net/
-// @version      0.3
+// @name         Kanka @ Helper (dev)
+// @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
+// @version      0.2.1-0
 // @description  Improve the experience of referencing entities.
-// @author       Infinite
+// @author       InfiniteGeek
+// @supportURL   Infinite @ https://discord.gg/rhsyZJ4
 // @license      MIT
-// @match        https://app.kanka.io/w/*/edit*
+// @match        https://app.kanka.io/w/*/entities/*
 // @icon         https://www.google.com/s2/favicons?domain=kanka.io
+// @keywords     kanka,at,mention
 // @run-at       document-idle
 // @grant        none
 // @require      https://craig.global.ssl.fastly.net/js/mousetrap/mousetrap.min.js?a4098
@@ -24,9 +26,21 @@
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
+var _a;
+var _b;
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const mousetrap_1 = __importDefault(__webpack_require__(802));
-const doThing = (event, combo) => {
+(_a = (_b = $.prototype).blink) !== null && _a !== void 0 ? _a : (_b.blink = function (times, duration) {
+    for (let i = 0; i < times; i++) {
+        this.animate({ opacity: 0 }, duration)
+            .animate({ opacity: 1 }, duration);
+    }
+    return this;
+});
+const mousetrapIntercept = (event, combo) => {
+    return summernoteIntercept(event);
+};
+const summernoteIntercept = (event) => {
     var _a;
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) {
@@ -50,7 +64,14 @@ const doThing = (event, combo) => {
     // document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
     return false;
 };
-$('#entry').on('summernote.init', function atHelperInit(event) {
+$('#entry').summernote({
+    callbacks: {
+        onKeydown(event) {
+            return summernoteIntercept(event);
+        },
+    }
+});
+function mousetrapAttach(key, callback) {
     const form = document.querySelector('form#entity-form');
     if (!form) {
         return;
@@ -59,8 +80,8 @@ $('#entry').on('summernote.init', function atHelperInit(event) {
     if (!textarea) {
         return;
     }
-    (0, mousetrap_1.default)(textarea).bind('@', doThing, 'keydown');
-});
+    (0, mousetrap_1.default)(textarea).bind('@', mousetrapIntercept, 'keydown');
+}
 
 
 /***/ }),

@@ -1,13 +1,46 @@
 {
   "name": "kanka-at-helper",
-  "version": "0.1",
-  "description": "",
+  "version": "0.2.1-0",
+  "displayName": "Kanka @ Helper",
+  "description": "Improve the experience of referencing entities.",
+  "icon": "https://www.google.com/s2/favicons?domain=kanka.io",
+  "keywords": [
+    "kanka",
+    "at",
+    "mention"
+  ],
+  "readme": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jpj625/kanka-userscripts.git"
+  },
+  "bugs": {
+    "url": "Infinite @ https://discord.gg/rhsyZJ4"
+  },
+  "homepage": "https://app.kanka.io/w/*/entities/*",
+  "publisher": "https://greasyfork.org/en/users/1029479-infinitegeek",
   "main": "index.js",
   "scripts": {
-    "build": "webpack",
-    "run": "webpack --watch"
+    "run": "webpack --watch",
+    "build": "webpack bundle",
+    "//ver": "echo 'sequence: `preversion` `ver:xxx` `version`'",
+    "ver:prerelease": "npm version prerelease",
+    "ver:patch": "npm version patch",
+    "ver:minor": "npm version minor",
+    "ver:major": "npm version major",
+    "version": "npm-run-all build git:commit",
+    "checkout:dev": "git checkout dev",
+    "checkout:master": "git checkout master",
+    "git:pack": "git add -A dist -f && git add -A package*.json",
+    "git:commit": "git add . && git commit -m \"Push %npm_package_version% build\"",
+    "git:push": "git push --force-with-lease && git push --tags",
+    "git:rebase-dev": "git checkout dev && git rebase master",
+    "git:merge-dev": "git checkout master && git merge dev",
+    "dev-workflow": "npm-run-all --print-label checkout:dev git:pack ver:prerelease git:push",
+    "prod-workflow": "npm-run-all --print-label checkout:dev git:merge-dev checkout:master ver:%VER% git:push",
+    "noop": "echo \"No operation %npm_package_version%\""
   },
-  "author": "",
+  "author": "InfiniteGeek",
   "license": "MIT",
   "dependencies": {
     "mousetrap": "^1.6.5",
@@ -16,7 +49,7 @@
   "devDependencies": {
     "@types/jquery": "^3.5.29",
     "@types/mousetrap": "^1.6.15",
-    "@types/select2": "^4.0.63",
+    "@types/summernote": "^0.8.10",
     "npm-run-all": "^4.1.5",
     "ts-loader": "^9.5.1",
     "webpack": "^5.89.0",

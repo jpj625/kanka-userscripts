@@ -1,11 +1,12 @@
 const webpack = require("webpack");
 const path = require("path");
+const pkg = require('./package.json');
+const branchName = require('child_process').execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+const scriptName = pkg.displayName + (['main', 'master'].includes(branchName) ? '' : ` (${branchName})`);
 
 module.exports = {
     entry: "./src/main.ts", // path to your main TypeScript file
     mode: "production",
-    // mode: "none",
-    // mode: "development",
     module: {
         rules: [
             {
@@ -18,9 +19,7 @@ module.exports = {
     externals: {
         mousetrap: 'Mousetrap',
     },
-    optimization: {
-        minimize: false
-    },
+    optimization: { minimize: false },
     resolve: {
         extensions: [".ts", ".js"],
     },
@@ -32,14 +31,16 @@ module.exports = {
         new webpack.BannerPlugin({
             banner: `
 // ==UserScript==
-// @name         Kanka.io @ Helper
-// @namespace    http://tampermonkey.net/
-// @version      0.3
-// @description  Improve the experience of referencing entities.
-// @author       Infinite
-// @license      MIT
-// @match        https://app.kanka.io/w/*/edit*
-// @icon         https://www.google.com/s2/favicons?domain=kanka.io
+// @name         ${scriptName}
+// @namespace    ${pkg.publisher}
+// @version      ${pkg.version}
+// @description  ${pkg.description}
+// @author       ${pkg.author}
+// @supportURL   ${pkg.bugs.url}
+// @license      ${pkg.license}
+// @match        ${pkg.homepage}
+// @icon         ${pkg.icon}
+// @keywords     ${pkg.keywords.join(',')}
 // @run-at       document-idle
 // @grant        none
 // @require      https://craig.global.ssl.fastly.net/js/mousetrap/mousetrap.min.js?a4098

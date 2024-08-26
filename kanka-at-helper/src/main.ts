@@ -1,9 +1,36 @@
 'use strict';
-type MousetrapCallback = (e: Mousetrap.ExtendedKeyboardEvent, combo: string) => void;
 
 import Mousetrap from 'mousetrap';
 
-const doThing: MousetrapCallback = (event: Mousetrap.ExtendedKeyboardEvent, combo: string) => {
+
+declare global {
+    type MousetrapCallback = (e: Mousetrap.ExtendedKeyboardEvent, combo: string) => void;
+
+    type Maybe<T> = NonNullable<T> | undefined;
+    type Dictionary<T> = Record<string, T>;
+    interface Window {
+        jQuery: JQueryStatic;
+        ajaxTooltip: Function;
+        showToast: (message: string, messageType: string) => void;
+    }
+    interface JQuery<TElement = HTMLElement> {
+        blink: (times: number, duration: number) => JQuery<TElement>;
+    }
+}
+
+$.prototype.blink ??= function (times: number, duration: number) {
+    for (let i = 0; i < times; i++) {
+        this.animate({ opacity: 0 }, duration)
+            .animate({ opacity: 1 }, duration);
+    }
+    return this;
+}
+
+const mousetrapIntercept: MousetrapCallback = (event: Mousetrap.ExtendedKeyboardEvent, combo: string) => {
+    return summernoteIntercept(event);
+};
+
+const summernoteIntercept = (event: KeyboardEvent) => {
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) { return false; }
   
@@ -30,12 +57,20 @@ const doThing: MousetrapCallback = (event: Mousetrap.ExtendedKeyboardEvent, comb
     return false;
 };
 
-$('#entry').on('summernote.init', function atHelperInit(event) {
+$('#entry').summernote({
+    callbacks: {
+        onKeydown(event) {
+            return summernoteIntercept(event);
+        },
+    }
+});
+
+function mousetrapAttach(key: string, callback: MousetrapCallback) {
     const form = document.querySelector('form#entity-form');
     if (!form) { return; }
 
     const textarea = form.querySelector('[contenteditable]');
     if (!textarea) { return; }
 
-    Mousetrap(textarea).bind('@', doThing, 'keydown');
-});
+    Mousetrap(textarea).bind('@', mousetrapIntercept, 'keydown');
+}
