@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka @ Helper (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.3.2-4
+// @version      0.3.2-5
 // @description  Improve the experience of referencing entities.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -33,9 +33,6 @@ __webpack_unused_export__ = ({ value: true });
     }
     return this;
 });
-const mousetrapIntercept = (event, combo) => {
-    return summernoteIntercept(event);
-};
 const summernoteIntercept = (event) => {
     var _a;
     const selection = window.getSelection();
@@ -69,9 +66,9 @@ function addKeydownHandler() {
         const editor = $(form).find('#entry.html-editor');
         if (editor.length > 0) {
             if (!!editor.summernote) {
-                editor.on('keydown', function (e) {
-                    console.log('Keydown event detected:', e);
-                    summernoteIntercept(e.originalEvent);
+                editor.on('summernote.keydown', function (event) {
+                    console.log('Keydown event detected:', event);
+                    summernoteIntercept(event);
                 });
                 console.log('Keydown handler attached.');
             }
@@ -87,7 +84,7 @@ function addKeydownHandler() {
     }
     catch (error) {
         console.log('Broke...', error);
-        setTimeout(addKeydownHandler, 5000); // Retry after some time
+        setTimeout(addKeydownHandler, 1000); // Retry after some time
     }
 }
 setTimeout(addKeydownHandler, 500); // Adjust the delay as needed

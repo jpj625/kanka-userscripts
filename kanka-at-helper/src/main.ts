@@ -26,11 +26,7 @@ $.prototype.blink ??= function (times: number, duration: number) {
     return this;
 }
 
-const mousetrapIntercept: MousetrapCallback = (event: Mousetrap.ExtendedKeyboardEvent, combo: string) => {
-    return summernoteIntercept(event);
-};
-
-const summernoteIntercept = (event: KeyboardEvent) => {
+const summernoteIntercept = (event: JQuery.TriggeredEvent) => {
     const selection = window.getSelection();
     console.log({selection});
     if (!selection || selection.rangeCount === 0) { return false; }
@@ -50,12 +46,12 @@ const summernoteIntercept = (event: KeyboardEvent) => {
     selection.addRange(range);
     
     // setTimeout(() => {
-        //     const fakeevent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' });
-        //     document.activeElement?.dispatchEvent(fakeevent);
-        // }, 100);
-        document.activeElement?.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, cancelable: true, data: '' }));
-        // document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
-        console.log('pew');
+    //     const fakeevent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' });
+    //     document.activeElement?.dispatchEvent(fakeevent);
+    // }, 100);
+    document.activeElement?.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, cancelable: true, data: '' }));
+    // document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
+    console.log('pew');
     
     return false;
 };
@@ -67,9 +63,9 @@ function addKeydownHandler() {
 
         if (editor.length > 0) {
             if (!!editor.summernote) {
-                editor.on('keydown', function(e) {
-                    console.log('Keydown event detected:', e);
-                    summernoteIntercept(e.originalEvent!);
+                editor.on('summernote.keydown', function(event) {
+                    console.log('Keydown event detected:', event);
+                    summernoteIntercept(event);
                 });
 
                 console.log('Keydown handler attached.');
@@ -83,26 +79,8 @@ function addKeydownHandler() {
         }
     } catch (error) {
         console.log('Broke...', error);
-        setTimeout(addKeydownHandler, 5000); // Retry after some time
+        setTimeout(addKeydownHandler, 1000); // Retry after some time
     }
 }
 
 setTimeout(addKeydownHandler, 500); // Adjust the delay as needed
-
-
-
-// $('#entry.html-editor').summernote({
-//     callbacks: {
-//         onKeydown(event) {
-//             return summernoteIntercept(event);
-//         },
-//     }
-// });
-
-
-
-// function mousetrapAttach(key: string, callback: MousetrapCallback) {
-
-
-//     Mousetrap(textarea).bind('@', mousetrapIntercept, 'keydown');
-// }
