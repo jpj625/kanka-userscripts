@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka @ Helper (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.2.1-1
+// @version      0.3.2-0
 // @description  Improve the experience of referencing entities.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
