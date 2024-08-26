@@ -84,11 +84,7 @@ function addKeydownHandler() {
     }
 }
 
-
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Document ready. Attaching keydown handler...');
-    setTimeout(addKeydownHandler, 500); // Adjust the delay as needed
-});
+setTimeout(addKeydownHandler, 500); // Adjust the delay as needed
 
 
 

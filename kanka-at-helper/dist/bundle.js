@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka @ Helper (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.3.2-2
+// @version      0.3.2-3
 // @description  Improve the experience of referencing entities.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -87,10 +87,7 @@ function addKeydownHandler() {
         setTimeout(addKeydownHandler, 5000); // Retry after some time
     }
 }
-document.addEventListener('DOMContentLoaded', function () {
-    console.log('Document ready. Attaching keydown handler...');
-    setTimeout(addKeydownHandler, 500); // Adjust the delay as needed
-});
+setTimeout(addKeydownHandler, 500); // Adjust the delay as needed
 
 })();
 
