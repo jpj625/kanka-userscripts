@@ -41,7 +41,7 @@ module.exports = {
 // @match        ${pkg.homepage}
 // @icon         ${pkg.icon}
 // @keywords     ${pkg.keywords.join(',')}
-// @run-at       document-idle
+// @run-at       document-start
 // @grant        none
 // @require      https://craig.global.ssl.fastly.net/js/mousetrap/mousetrap.min.js?a4098
 // ==/UserScript==

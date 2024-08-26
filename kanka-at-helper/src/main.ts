@@ -58,26 +58,29 @@ const summernoteIntercept = (event: KeyboardEvent) => {
 };
 
 function addKeydownHandler() {
-    const form = document.querySelector('form#entity-form');
-    if (!form) { return; }
+    try {
+        const form = document.querySelector('form#entity-form');
+        const editor = $(form!).find('#entry.html-editor');
 
-    const editor = $(form).find('#entry.html-editor');
+        if (editor.length > 0) {
+            if (!!editor.summernote && editor.attr('contenteditable') === 'true') {
+                editor.on('keydown', function(e) {
+                    console.log('Keydown event detected:', e);
+                    summernoteIntercept(e.originalEvent!);
+                });
 
-    if (editor.length > 0) {
-        if (!!editor.summernote && editor.attr('contenteditable') === 'true') {
-            editor.on('keydown', function(e) {
-                console.log('Keydown event detected:', e);
-                summernoteIntercept(e.originalEvent!);
-            });
-
-            console.log('Keydown handler attached.');
+                console.log('Keydown handler attached.');
+            } else {
+                console.log('Editor not ready. Retrying...');
+                setTimeout(addKeydownHandler, 500); // Retry after some time
+            }
         } else {
-            console.log('Editor not ready. Retrying...');
+            console.log('Editor not found. Retrying...');
             setTimeout(addKeydownHandler, 500); // Retry after some time
         }
-    } else {
-        console.log('Editor not found. Retrying...');
-        setTimeout(addKeydownHandler, 500); // Retry after some time
+    } catch (error) {
+        console.log('Broke...', error);
+        setTimeout(addKeydownHandler, 5000); // Retry after some time
     }
 }
 

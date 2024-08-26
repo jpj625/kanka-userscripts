@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka @ Helper (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.3.2-1
+// @version      0.3.2-2
 // @description  Improve the experience of referencing entities.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -10,7 +10,7 @@
 // @match        https://app.kanka.io/w/*/entities/*
 // @icon         https://www.google.com/s2/favicons?domain=kanka.io
 // @keywords     kanka,at,mention
-// @run-at       document-idle
+// @run-at       document-start
 // @grant        none
 // @require      https://craig.global.ssl.fastly.net/js/mousetrap/mousetrap.min.js?a4098
 // ==/UserScript==
@@ -61,27 +61,30 @@ const summernoteIntercept = (event) => {
     return false;
 };
 function addKeydownHandler() {
-    const form = document.querySelector('form#entity-form');
-    if (!form) {
-        return;
-    }
-    const editor = $(form).find('#entry.html-editor');
-    if (editor.length > 0) {
-        if (!!editor.summernote && editor.attr('contenteditable') === 'true') {
-            editor.on('keydown', function (e) {
-                console.log('Keydown event detected:', e);
-                summernoteIntercept(e.originalEvent);
-            });
-            console.log('Keydown handler attached.');
+    try {
+        const form = document.querySelector('form#entity-form');
+        const editor = $(form).find('#entry.html-editor');
+        if (editor.length > 0) {
+            if (!!editor.summernote && editor.attr('contenteditable') === 'true') {
+                editor.on('keydown', function (e) {
+                    console.log('Keydown event detected:', e);
+                    summernoteIntercept(e.originalEvent);
+                });
+                console.log('Keydown handler attached.');
+            }
+            else {
+                console.log('Editor not ready. Retrying...');
+                setTimeout(addKeydownHandler, 500); // Retry after some time
+            }
         }
         else {
-            console.log('Editor not ready. Retrying...');
+            console.log('Editor not found. Retrying...');
             setTimeout(addKeydownHandler, 500); // Retry after some time
         }
     }
-    else {
-        console.log('Editor not found. Retrying...');
-        setTimeout(addKeydownHandler, 500); // Retry after some time
+    catch (error) {
+        console.log('Broke...', error);
+        setTimeout(addKeydownHandler, 5000); // Retry after some time
     }
 }
 document.addEventListener('DOMContentLoaded', function () {
