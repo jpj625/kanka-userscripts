@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka @ Helper (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.2.1-0
+// @version      0.2.1-1
 // @description  Improve the experience of referencing entities.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -17,19 +17,15 @@
 
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
-/******/ 	var __webpack_modules__ = ({
+var __webpack_exports__ = {};
+// This entry need to be wrapped in an IIFE because it uses a non-standard name for the exports (exports).
+(() => {
+var exports = __webpack_exports__;
+var __webpack_unused_export__;
 
-/***/ 519:
-/***/ (function(__unused_webpack_module, exports, __webpack_require__) {
-
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 var _a;
 var _b;
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-const mousetrap_1 = __importDefault(__webpack_require__(802));
+__webpack_unused_export__ = ({ value: true });
 (_a = (_b = $.prototype).blink) !== null && _a !== void 0 ? _a : (_b.blink = function (times, duration) {
     for (let i = 0; i < times; i++) {
         this.animate({ opacity: 0 }, duration)
@@ -64,67 +60,35 @@ const summernoteIntercept = (event) => {
     // document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
     return false;
 };
-$('#entry').summernote({
-    callbacks: {
-        onKeydown(event) {
-            return summernoteIntercept(event);
-        },
-    }
-});
-function mousetrapAttach(key, callback) {
+function addKeydownHandler() {
     const form = document.querySelector('form#entity-form');
     if (!form) {
         return;
     }
-    const textarea = form.querySelector('[contenteditable]');
-    if (!textarea) {
-        return;
+    const editor = $(form).find('#entry.html-editor');
+    if (editor.length > 0) {
+        if (!!editor.summernote && editor.attr('contenteditable') === 'true') {
+            editor.on('keydown', function (e) {
+                console.log('Keydown event detected:', e);
+            });
+            console.log('Keydown handler attached.');
+        }
+        else {
+            console.log('Editor not ready. Retrying...');
+            setTimeout(addKeydownHandler, 500); // Retry after some time
+        }
     }
-    (0, mousetrap_1.default)(textarea).bind('@', mousetrapIntercept, 'keydown');
+    else {
+        console.log('Editor not found. Retrying...');
+        setTimeout(addKeydownHandler, 500); // Retry after some time
+    }
 }
+document.addEventListener('DOMContentLoaded', function () {
+    // Wait a bit longer for Summernote to initialize
+    setTimeout(addKeydownHandler, 500); // Adjust the delay as needed
+});
 
+})();
 
-/***/ }),
-
-/***/ 802:
-/***/ ((module) => {
-
-module.exports = Mousetrap;
-
-/***/ })
-
-/******/ 	});
-/************************************************************************/
-/******/ 	// The module cache
-/******/ 	var __webpack_module_cache__ = {};
-/******/ 	
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
-/******/ 		// Check if module is in cache
-/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
-/******/ 		if (cachedModule !== undefined) {
-/******/ 			return cachedModule.exports;
-/******/ 		}
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = __webpack_module_cache__[moduleId] = {
-/******/ 			// no module.id needed
-/******/ 			// no module.loaded needed
-/******/ 			exports: {}
-/******/ 		};
-/******/ 	
-/******/ 		// Execute the module function
-/******/ 		__webpack_modules__[moduleId].call(module.exports, module, module.exports, __webpack_require__);
-/******/ 	
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
-/******/ 	
-/************************************************************************/
-/******/ 	
-/******/ 	// startup
-/******/ 	// Load entry module and return exports
-/******/ 	// This entry module is referenced by other modules so it can't be inlined
-/******/ 	var __webpack_exports__ = __webpack_require__(519);
-/******/ 	
 /******/ })()
 ;

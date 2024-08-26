@@ -57,20 +57,49 @@ const summernoteIntercept = (event: KeyboardEvent) => {
     return false;
 };
 
-$('#entry').summernote({
-    callbacks: {
-        onKeydown(event) {
-            return summernoteIntercept(event);
-        },
-    }
-});
-
-function mousetrapAttach(key: string, callback: MousetrapCallback) {
+function addKeydownHandler() {
     const form = document.querySelector('form#entity-form');
     if (!form) { return; }
 
-    const textarea = form.querySelector('[contenteditable]');
-    if (!textarea) { return; }
+    const editor = $(form).find('#entry.html-editor');
 
-    Mousetrap(textarea).bind('@', mousetrapIntercept, 'keydown');
+    if (editor.length > 0) {
+        if (!!editor.summernote && editor.attr('contenteditable') === 'true') {
+            editor.on('keydown', function(e) {
+                console.log('Keydown event detected:', e);
+            });
+
+            console.log('Keydown handler attached.');
+        } else {
+            console.log('Editor not ready. Retrying...');
+            setTimeout(addKeydownHandler, 500); // Retry after some time
+        }
+    } else {
+        console.log('Editor not found. Retrying...');
+        setTimeout(addKeydownHandler, 500); // Retry after some time
+    }
 }
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Wait a bit longer for Summernote to initialize
+    setTimeout(addKeydownHandler, 500); // Adjust the delay as needed
+});
+
+
+
+// $('#entry.html-editor').summernote({
+//     callbacks: {
+//         onKeydown(event) {
+//             return summernoteIntercept(event);
+//         },
+//     }
+// });
+
+
+
+// function mousetrapAttach(key: string, callback: MousetrapCallback) {
+
+
+//     Mousetrap(textarea).bind('@', mousetrapIntercept, 'keydown');
+// }
