@@ -67,6 +67,7 @@ function addKeydownHandler() {
         if (!!editor.summernote && editor.attr('contenteditable') === 'true') {
             editor.on('keydown', function(e) {
                 console.log('Keydown event detected:', e);
+                summernoteIntercept(e.originalEvent!);
             });
 
             console.log('Keydown handler attached.');
@@ -82,7 +83,7 @@ function addKeydownHandler() {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Wait a bit longer for Summernote to initialize
+    console.log('Document ready. Attaching keydown handler...');
     setTimeout(addKeydownHandler, 500); // Adjust the delay as needed
 });
 
