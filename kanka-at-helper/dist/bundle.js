@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka @ Helper (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.3.2-5
+// @version      0.3.2-6
 // @description  Improve the experience of referencing entities.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -35,8 +35,10 @@ __webpack_unused_export__ = ({ value: true });
 });
 const summernoteIntercept = (event) => {
     var _a;
+    if (event.key !== '@') {
+        return true;
+    }
     const selection = window.getSelection();
-    console.log({ selection });
     if (!selection || selection.rangeCount === 0) {
         return false;
     }
@@ -46,7 +48,7 @@ const summernoteIntercept = (event) => {
     console.log({ range, selectedText, modifiedText });
     range.deleteContents();
     range.insertNode(modifiedText);
-    range.collapse();
+    range.collapse(false);
     // range.setStartAfter(modifiedText);
     // range.setEndAfter(modifiedText);
     selection.removeAllRanges();
@@ -57,7 +59,6 @@ const summernoteIntercept = (event) => {
     // }, 100);
     (_a = document.activeElement) === null || _a === void 0 ? void 0 : _a.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, cancelable: true, data: '' }));
     // document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
-    console.log('pew');
     return false;
 };
 function addKeydownHandler() {
@@ -66,7 +67,7 @@ function addKeydownHandler() {
         const editor = $(form).find('#entry.html-editor');
         if (editor.length > 0) {
             if (!!editor.summernote) {
-                editor.on('summernote.keydown', function (event) {
+                editor.on('summernote.keydown', function (we, event) {
                     console.log('Keydown event detected:', event);
                     summernoteIntercept(event);
                 });

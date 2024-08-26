@@ -27,8 +27,12 @@ $.prototype.blink ??= function (times: number, duration: number) {
 }
 
 const summernoteIntercept = (event: JQuery.TriggeredEvent) => {
+
+    if (event.key !== '@') {
+        return true;
+    }
+
     const selection = window.getSelection();
-    console.log({selection});
     if (!selection || selection.rangeCount === 0) { return false; }
     
     const range = selection.getRangeAt(0);
@@ -39,7 +43,7 @@ const summernoteIntercept = (event: JQuery.TriggeredEvent) => {
     range.deleteContents();
     range.insertNode(modifiedText);
     
-    range.collapse();
+    range.collapse(false);
     // range.setStartAfter(modifiedText);
     // range.setEndAfter(modifiedText);
     selection.removeAllRanges();
@@ -51,7 +55,6 @@ const summernoteIntercept = (event: JQuery.TriggeredEvent) => {
     // }, 100);
     document.activeElement?.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, cancelable: true, data: '' }));
     // document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
-    console.log('pew');
     
     return false;
 };
@@ -63,7 +66,7 @@ function addKeydownHandler() {
 
         if (editor.length > 0) {
             if (!!editor.summernote) {
-                editor.on('summernote.keydown', function(event) {
+                editor.on('summernote.keydown', function(we, event) {
                     console.log('Keydown event detected:', event);
                     summernoteIntercept(event);
                 });
