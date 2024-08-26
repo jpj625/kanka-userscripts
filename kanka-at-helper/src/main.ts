@@ -33,13 +33,16 @@ const summernoteIntercept = (event: JQuery.TriggeredEvent) => {
     }
 
     const selection = window.getSelection();
-    if (!selection || selection.rangeCount === 0) { return false; }
+    console.log({selection});
+    if (!selection || selection.rangeCount === 0) { return true; }
     
     const range = selection.getRangeAt(0);
     const selectedText = range.toString();
     const modifiedText = document.createTextNode(`@${selectedText.replace(/ /g, '_',)}`);
+    event.preventDefault();
+    // event.stopImmediatePropagation();
     
-    console.log({range, selectedText, modifiedText});
+    // console.log({range, selectedText, modifiedText});
     range.deleteContents();
     range.insertNode(modifiedText);
     
@@ -49,14 +52,37 @@ const summernoteIntercept = (event: JQuery.TriggeredEvent) => {
     selection.removeAllRanges();
     selection.addRange(range);
     
+    const editor = $(document.activeElement!);
+    editor.summernote('insertText', modifiedText);
+
+
     // setTimeout(() => {
     //     const fakeevent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' });
     //     document.activeElement?.dispatchEvent(fakeevent);
     // }, 100);
     document.activeElement?.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, cancelable: true, data: '' }));
-    // document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
+    document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
     
     return false;
+};
+
+const simpleIntercept = (editor: JQuery<HTMLElement>, event: JQuery.TriggeredEvent) => {
+    const selection = window.getSelection();
+    console.log({selection});
+
+    if (selection && selection.rangeCount > 0) {
+        const modifiedText = '@' + selection.toString().replace(/ /g, '_');
+        editor.summernote('insertText', modifiedText);
+
+        // Simulate the right arrow key press to trigger the mentions dropdown
+        const e = new KeyboardEvent('keydown', {
+            key: 'ArrowRight',
+            keyCode: 39,
+            which: 39,
+            bubbles: true
+        });
+        editor[0].dispatchEvent(e);
+    }
 };
 
 function addKeydownHandler() {
@@ -68,7 +94,7 @@ function addKeydownHandler() {
             if (!!editor.summernote) {
                 editor.on('summernote.keydown', function(we, event) {
                     console.log('Keydown event detected:', event);
-                    summernoteIntercept(event);
+                    simpleIntercept(editor, event);
                 });
 
                 console.log('Keydown handler attached.');
