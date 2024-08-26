@@ -32,12 +32,14 @@ const mousetrapIntercept: MousetrapCallback = (event: Mousetrap.ExtendedKeyboard
 
 const summernoteIntercept = (event: KeyboardEvent) => {
     const selection = window.getSelection();
+    console.log({selection});
     if (!selection || selection.rangeCount === 0) { return false; }
-  
+    
     const range = selection.getRangeAt(0);
     const selectedText = range.toString();
     const modifiedText = document.createTextNode(`@${selectedText.replace(/ /g, '_',)}`);
     
+    console.log({range, selectedText, modifiedText});
     range.deleteContents();
     range.insertNode(modifiedText);
     
@@ -46,24 +48,25 @@ const summernoteIntercept = (event: KeyboardEvent) => {
     // range.setEndAfter(modifiedText);
     selection.removeAllRanges();
     selection.addRange(range);
-
+    
     // setTimeout(() => {
-    //     const fakeevent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' });
-    //     document.activeElement?.dispatchEvent(fakeevent);
-    // }, 100);
-    document.activeElement?.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, cancelable: true, data: '' }));
-    // document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
+        //     const fakeevent = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' });
+        //     document.activeElement?.dispatchEvent(fakeevent);
+        // }, 100);
+        document.activeElement?.dispatchEvent(new CompositionEvent('compositionend', { bubbles: true, cancelable: true, data: '' }));
+        // document.activeElement?.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true, cancelable: true, key: 'ArrowRight', code: 'ArrowRight' }));
+        console.log('pew');
     
     return false;
 };
 
 function addKeydownHandler() {
     try {
-        const form = document.querySelector('form#entity-form');
+        const form = document.querySelector('form.entity-form');
         const editor = $(form!).find('#entry.html-editor');
 
         if (editor.length > 0) {
-            if (!!editor.summernote && editor.attr('contenteditable') === 'true') {
+            if (!!editor.summernote) {
                 editor.on('keydown', function(e) {
                     console.log('Keydown event detected:', e);
                     summernoteIntercept(e.originalEvent!);
