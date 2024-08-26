@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka @ Helper (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.3.2-7
+// @version      0.3.2-8
 // @description  Improve the experience of referencing entities.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -67,19 +67,22 @@ const summernoteIntercept = (event) => {
     return false;
 };
 const simpleIntercept = (editor, event) => {
-    const selection = window.getSelection();
-    console.log({ selection });
-    if (selection && selection.rangeCount > 0) {
-        const modifiedText = '@' + selection.toString().replace(/ /g, '_');
-        editor.summernote('insertText', modifiedText);
-        // Simulate the right arrow key press to trigger the mentions dropdown
-        const e = new KeyboardEvent('keydown', {
-            key: 'ArrowRight',
-            keyCode: 39,
-            which: 39,
-            bubbles: true
-        });
-        editor[0].dispatchEvent(e);
+    if (event.key === '@') {
+        event.preventDefault();
+        const selection = window.getSelection();
+        console.log({ selection });
+        if (selection && selection.rangeCount > 0) {
+            const modifiedText = '@' + selection.toString().trimEnd().replace(/ /g, '_');
+            editor.summernote('insertText', modifiedText);
+            // Simulate the right arrow key press to trigger the mentions dropdown
+            const e = new KeyboardEvent('keydown', {
+                key: 'ArrowRight',
+                keyCode: 39,
+                which: 39,
+                bubbles: true
+            });
+            editor[0].dispatchEvent(e);
+        }
     }
 };
 function addKeydownHandler() {
