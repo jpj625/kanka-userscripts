@@ -1,20 +1,24 @@
 {
     "compilerOptions": {
+        "newLine": "crlf",
         "target": "ES2018",
         "module": "Node16",
+        "strict": true,
+        "alwaysStrict": true,
+        "moduleResolution": "Node16",
+        "esModuleInterop": true,
+        "rootDir": "./src",
         "outDir": "./dist",
+        "pretty": true,
         "declaration": true,
         "declarationMap": true,
+        "declarationDir": "./types",
         "emitDeclarationOnly": false,
-        "moduleResolution": "Node16",
-        "strict": true,
-        "esModuleInterop": true,
-        "alwaysStrict": true,
-        "newLine": "crlf",
         "lib": [
             "DOM",
             "ES2022",
-        ]
+        ],
+        "composite": true
     },
     "include": [
         "./src/**/*.ts"

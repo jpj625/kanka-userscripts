@@ -1,10 +1,11 @@
-const webpack = require("webpack");
-const path = require("path");
-const pkg = require('./package.json');
-const branchName = require('child_process').execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
+import webpack from 'webpack';
+import path from 'path';
+import pkg from './package.json' with { type: "json" };
+import { execSync } from 'child_process';
+const branchName = execSync('git rev-parse --abbrev-ref HEAD').toString().trim();
 const scriptName = pkg.displayName + (['main', 'master'].includes(branchName) ? '' : ` (${branchName})`);
 
-module.exports = {
+export default {
     entry: "./src/main.ts", // path to your main TypeScript file
     mode: "production",
     module: {
@@ -25,7 +26,7 @@ module.exports = {
     },
     output: {
         filename: "bundle.js", // name of the output bundle
-        path: path.resolve(__dirname, "dist"), // directory to output the bundle
+        path: path.resolve(import.meta.dirname, "dist"), // directory to output the bundle
     },
     plugins: [
         new webpack.BannerPlugin({
@@ -48,10 +49,3 @@ module.exports = {
         }),
     ],
 };
-
-function encodeRFC3986URIComponent(str) {
-    return encodeURIComponent(str).replace(
-        /[!'()*]/g,
-        (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`,
-    );
-}

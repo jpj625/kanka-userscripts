@@ -2,7 +2,7 @@
 // ==UserScript==
 // @name         Kanka SDK (dev)
 // @namespace    https://greasyfork.org/en/users/1029479-infinitegeek
-// @version      0.0.1-2
+// @version      0.0.1-3
 // @description  Tools for Kanking.
 // @author       InfiniteGeek
 // @supportURL   Infinite @ https://discord.gg/rhsyZJ4
@@ -15,14 +15,8 @@
 
 /******/ (() => { // webpackBootstrap
 /******/ 	"use strict";
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it uses a non-standard name for the exports (exports).
-(() => {
-var exports = __webpack_exports__;
-var __webpack_unused_export__;
 
 var _a, _b;
-__webpack_unused_export__ = ({ value: true });
 const emit_debug = (...args) => { };
 //const emit_debug = console.log;
 function getElementPromise(...selectorChain) {
@@ -277,16 +271,14 @@ const Util = {
     getElementPromise,
     parseBodyClasses,
 };
-__webpack_unused_export__ = {
+/* unused harmony default export */ var __WEBPACK_DEFAULT_EXPORT__ = ({
     Uri,
     Session,
     Entity,
     EntityTypeAttributes,
     Util,
     Api,
-};
-
-})();
+});
 
 /******/ })()
 ;
