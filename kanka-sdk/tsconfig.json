@@ -1,8 +1,12 @@
 {
     "compilerOptions": {
-        "target": "ES2022",
-        "module": "System",
+        "target": "ES2018",
+        "module": "Node16",
         "outDir": "./dist",
+        "declaration": true,
+        "declarationMap": true,
+        "emitDeclarationOnly": false,
+        "moduleResolution": "Node16",
         "strict": true,
         "esModuleInterop": true,
         "alwaysStrict": true,
